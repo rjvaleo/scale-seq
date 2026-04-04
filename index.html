@@ -180,8 +180,9 @@
 
       <!-- RIGHT PANEL -->
       <div class="right-panel">
-        <!-- SYNTH / ADSR ROW -->
+        <!-- SYNTH / ADSR + FILTER ROW -->
         <div class="synth-row">
+          <span class="row-label">SYNTH</span>
           <!-- ADSR canvas + knobs sub-block -->
           <div class="adsr-block">
             <canvas
@@ -357,13 +358,12 @@
             </div>
             <div class="select-row">
               <span class="knob-label">HZ</span>
-              <span class="knob-val" id="rootHzDisplay" style="font-size: 11px">440.0</span>
+              <span class="knob-val" id="rootHzDisplay" style="font-size: 11px"
+                >440.0</span
+              >
             </div>
           </div>
-        </div>
-
-        <!-- FILTER ROW: cutoff / reso / key-follow / filter ADSR -->
-        <div class="synth-row">
+          <div class="divider"></div>
           <span class="row-label" style="color: #ff6b35">FILTER</span>
           <div class="knob-group">
             <span class="knob-label">CUTOFF</span>
