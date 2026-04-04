@@ -834,6 +834,105 @@
           </div>
         </div>
 
+        <!-- DELAY ROW -->
+        <div class="synth-row">
+          <span
+            style="
+              font-size: 9px;
+              color: #7fff00;
+              letter-spacing: 2px;
+              text-transform: uppercase;
+              align-self: center;
+            "
+            >DELAY</span
+          >
+          <div class="knob-group">
+            <span class="knob-label">TIME</span>
+            <select
+              id="delayTimeSelect"
+              onchange="updateDelay()"
+              style="font-size: 10px"
+            >
+              <option value="0.125">1/32</option>
+              <option value="0.25">1/16</option>
+              <option value="0.33333">1/8T</option>
+              <option value="0.5" selected>1/8</option>
+              <option value="0.75">D 1/8</option>
+              <option value="1">1/4</option>
+              <option value="1.33333">1/4T</option>
+              <option value="1.5">D 1/4</option>
+              <option value="2">1/2</option>
+              <option value="3">D 1/2</option>
+              <option value="4">1 BAR</option>
+            </select>
+            <span class="knob-val" id="delayTimeVal" style="font-size: 9px"
+              >250ms</span
+            >
+          </div>
+          <div class="knob-group">
+            <span class="knob-label">FEEDBACK</span>
+            <input
+              type="range"
+              class="knob-slider"
+              min="0"
+              max="95"
+              value="35"
+              id="delayFbSlider"
+              oninput="updateDelay()"
+            />
+            <span class="knob-val" id="delayFbVal">35%</span>
+          </div>
+          <div class="knob-group">
+            <span class="knob-label">WET</span>
+            <input
+              type="range"
+              class="knob-slider"
+              min="0"
+              max="100"
+              value="25"
+              id="delayWetSlider"
+              oninput="updateDelay()"
+            />
+            <span class="knob-val" id="delayWetVal">25%</span>
+          </div>
+          <div class="knob-group">
+            <span class="knob-label">SPREAD</span>
+            <input
+              type="range"
+              class="knob-slider"
+              min="0"
+              max="100"
+              value="100"
+              id="delaySpreadSlider"
+              oninput="updateDelay()"
+            />
+            <span class="knob-val" id="delaySpreadVal">100%</span>
+          </div>
+          <div class="knob-group">
+            <span class="knob-label">HI CUT</span>
+            <input
+              type="range"
+              class="knob-slider"
+              min="0"
+              max="100"
+              value="75"
+              id="delayHiCutSlider"
+              oninput="updateDelay()"
+            />
+            <span class="knob-val" id="delayHiCutVal">6.3kHz</span>
+          </div>
+          <div class="divider"></div>
+          <div class="knob-group" style="align-items: flex-start">
+            <span class="knob-label">PING-PONG</span>
+            <canvas
+              id="ppCanvas"
+              width="140"
+              height="50"
+              style="background: #0a0c0e; border: 1px solid #1e2830"
+            ></canvas>
+          </div>
+        </div>
+
         <!-- SCALE DISPLAY -->
         <div class="scale-display">
           <div style="display: flex; align-items: baseline; gap: 12px">
@@ -1458,6 +1557,24 @@
       let lfoAnimId = null;
       let lfoAnimPhase = 0;
 
+      // ─── DELAY STATE ─────────────────────────────────────────────────────────────
+      let delaySubdiv = 0.5; // beats (1/8 note default)
+      let delayFeedback = 0.35;
+      let delayWet = 0.25;
+      let delaySpread = 1.0;
+      let delayHiCutFreq = 6300;
+      let delayDryGain = null;
+      let delayWetGain = null;
+      let delayL = null,
+        delayR = null;
+      let delayPanL = null,
+        delayPanR = null;
+      let delayHiCutLR = null,
+        delayHiCutRL = null;
+      let delayFbGainLR = null,
+        delayFbGainRL = null;
+      let ppAnimId = null;
+
       // Step data: array of { degree: number, rest: boolean }
       let steps = Array.from({ length: 16 }, (_, i) => ({
         degree: i % 7,
@@ -1474,8 +1591,54 @@
         filterNode.type = "lowpass";
         filterNode.frequency.value = filterCutoff;
         filterNode.Q.value = filterRes;
-        filterNode.connect(masterGain);
         masterGain.connect(audioCtx.destination);
+
+        // Dry path: filter → dryGain → masterGain
+        delayDryGain = audioCtx.createGain();
+        delayDryGain.gain.value = 1 - delayWet;
+        filterNode.connect(delayDryGain);
+        delayDryGain.connect(masterGain);
+
+        // Ping-pong delay wet path
+        delayL = audioCtx.createDelay(4.0);
+        delayR = audioCtx.createDelay(4.0);
+        const dTime = (60 / bpm) * delaySubdiv;
+        delayL.delayTime.value = dTime;
+        delayR.delayTime.value = dTime;
+        delayPanL = audioCtx.createStereoPanner();
+        delayPanR = audioCtx.createStereoPanner();
+        delayPanL.pan.value = -delaySpread;
+        delayPanR.pan.value = delaySpread;
+        delayWetGain = audioCtx.createGain();
+        delayWetGain.gain.value = delayWet;
+        delayWetGain.connect(masterGain);
+        delayHiCutLR = audioCtx.createBiquadFilter();
+        delayHiCutLR.type = "lowpass";
+        delayHiCutLR.Q.value = 0.5;
+        delayHiCutLR.frequency.value = delayHiCutFreq;
+        delayHiCutRL = audioCtx.createBiquadFilter();
+        delayHiCutRL.type = "lowpass";
+        delayHiCutRL.Q.value = 0.5;
+        delayHiCutRL.frequency.value = delayHiCutFreq;
+        delayFbGainLR = audioCtx.createGain();
+        delayFbGainLR.gain.value = delayFeedback;
+        delayFbGainRL = audioCtx.createGain();
+        delayFbGainRL.gain.value = delayFeedback;
+        // Graph: input → delayL → panL → wetOut
+        //               delayL → hiCut → fbGain → delayR → panR → wetOut
+        //               delayR → hiCut → fbGain → delayL  (ping-pong loop)
+        filterNode.connect(delayL);
+        delayL.connect(delayPanL);
+        delayPanL.connect(delayWetGain);
+        delayL.connect(delayHiCutLR);
+        delayHiCutLR.connect(delayFbGainLR);
+        delayFbGainLR.connect(delayR);
+        delayR.connect(delayPanR);
+        delayPanR.connect(delayWetGain);
+        delayR.connect(delayHiCutRL);
+        delayHiCutRL.connect(delayFbGainRL);
+        delayFbGainRL.connect(delayL);
+
         // LFO oscillator modulates filter cutoff
         lfoOsc = audioCtx.createOscillator();
         lfoGain = audioCtx.createGain();
@@ -1704,6 +1867,7 @@
       function updateBPM(v) {
         bpm = parseInt(v);
         document.getElementById("bpmVal").textContent = v;
+        updateDelay();
       }
 
       function updateSteps(v) {
@@ -1794,6 +1958,115 @@
       function updatePW(v) {
         pulseWidth = parseInt(v) / 100;
         document.getElementById("pwVal").textContent = v + "%";
+      }
+
+      // ─── DELAY CONTROLS ──────────────────────────────────────────────────────────
+      function updateDelay() {
+        delaySubdiv = parseFloat(
+          document.getElementById("delayTimeSelect").value,
+        );
+        const fbV = parseInt(document.getElementById("delayFbSlider").value);
+        const wetV = parseInt(document.getElementById("delayWetSlider").value);
+        const sprV = parseInt(
+          document.getElementById("delaySpreadSlider").value,
+        );
+        const hcV = parseInt(document.getElementById("delayHiCutSlider").value);
+        delayFeedback = fbV / 100;
+        delayWet = wetV / 100;
+        delaySpread = sprV / 100;
+        // Log scale hi-cut: 200Hz → 20kHz
+        delayHiCutFreq = 200 * Math.pow(100, hcV / 100);
+        const dTime = (60 / bpm) * delaySubdiv;
+        if (delayL) delayL.delayTime.value = dTime;
+        if (delayR) delayR.delayTime.value = dTime;
+        if (delayFbGainLR) delayFbGainLR.gain.value = delayFeedback;
+        if (delayFbGainRL) delayFbGainRL.gain.value = delayFeedback;
+        if (delayPanL) delayPanL.pan.value = -delaySpread;
+        if (delayPanR) delayPanR.pan.value = delaySpread;
+        if (delayHiCutLR) delayHiCutLR.frequency.value = delayHiCutFreq;
+        if (delayHiCutRL) delayHiCutRL.frequency.value = delayHiCutFreq;
+        if (delayDryGain) delayDryGain.gain.value = 1 - delayWet;
+        if (delayWetGain) delayWetGain.gain.value = delayWet;
+        document.getElementById("delayFbVal").textContent = fbV + "%";
+        document.getElementById("delayWetVal").textContent = wetV + "%";
+        document.getElementById("delaySpreadVal").textContent = sprV + "%";
+        document.getElementById("delayHiCutVal").textContent =
+          delayHiCutFreq >= 1000
+            ? (delayHiCutFreq / 1000).toFixed(1) + "kHz"
+            : Math.round(delayHiCutFreq) + "Hz";
+        // Show tempo-synced delay time in ms
+        const ms = Math.round((60 / bpm) * delaySubdiv * 1000);
+        document.getElementById("delayTimeVal").textContent = ms + "ms";
+      }
+
+      // ─── PING-PONG CANVAS ────────────────────────────────────────────────────────
+      function drawPPCanvas() {
+        const canvas = document.getElementById("ppCanvas");
+        if (!canvas) return;
+        const W = canvas.width,
+          H = canvas.height;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#0a0c0e";
+        ctx.fillRect(0, 0, W, H);
+        // Divider
+        ctx.strokeStyle = "#1e2830";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(W / 2, 2);
+        ctx.lineTo(W / 2, H - 13);
+        ctx.stroke();
+        // Labels
+        ctx.fillStyle = "#4a6070";
+        ctx.font = "8px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText("L", W * 0.25, H - 2);
+        ctx.fillText("R", W * 0.75, H - 2);
+        const T = delayL ? delayL.delayTime.value : (60 / bpm) * delaySubdiv;
+        const now = audioCtx ? audioCtx.currentTime : performance.now() / 1000;
+        const phase2 = (now % (T * 2)) / (T * 2); // 0..1 over L+R cycle
+        const midY = H * 0.4;
+        // L echo (first half of cycle)
+        const lPulse = phase2 < 0.5 ? Math.pow(1 - phase2 * 2, 0.4) : 0;
+        ctx.beginPath();
+        ctx.arc(W * 0.25, midY, 4 + lPulse * 5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0,229,255,${0.12 + lPulse * 0.88})`;
+        ctx.fill();
+        // glow ring
+        if (lPulse > 0.1) {
+          ctx.beginPath();
+          ctx.arc(W * 0.25, midY, 10 + lPulse * 6, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(0,229,255,${lPulse * 0.25})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        // R echo (second half)
+        const rPulse =
+          phase2 >= 0.5 ? Math.pow(1 - (phase2 - 0.5) * 2, 0.4) : 0;
+        ctx.beginPath();
+        ctx.arc(W * 0.75, midY, 4 + rPulse * 5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,107,53,${0.12 + rPulse * 0.88})`;
+        ctx.fill();
+        if (rPulse > 0.1) {
+          ctx.beginPath();
+          ctx.arc(W * 0.75, midY, 10 + rPulse * 6, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255,107,53,${rPulse * 0.25})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+        // Feedback echo dots (green, fading)
+        let fbAmp = delayFeedback;
+        for (let i = 1; i <= 5 && fbAmp > 0.04; i++) {
+          const ePhase = (((phase2 - i * 0.5) % 1) + 1) % 1;
+          const isR = i % 2 === 1;
+          const ePulse = ePhase < 0.5 ? Math.pow(1 - ePhase * 2, 0.4) : 0;
+          const cx = isR ? W * 0.75 : W * 0.25;
+          ctx.beginPath();
+          ctx.arc(cx, midY, 2 + ePulse * 3, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(127,255,0,${fbAmp * ePulse})`;
+          ctx.fill();
+          fbAmp *= delayFeedback;
+        }
+        ppAnimId = requestAnimationFrame(drawPPCanvas);
       }
 
       // ─── ADSR CANVAS ─────────────────────────────────────────────────────────────
@@ -2105,7 +2378,9 @@
       updateEnv();
       updateFilter();
       updateLFO();
+      updateDelay();
       drawLFOCanvas();
+      drawPPCanvas();
 
       // Auto-resume AudioContext on first interaction
       document.addEventListener(
