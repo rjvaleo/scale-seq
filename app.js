@@ -1926,20 +1926,34 @@ function savePresetsToStorage(list) {
 }
 
 function renderPresetList() {
-  const sel = document.getElementById("presetSelect");
-  if (!sel) return;
-  const current = sel.value;
   const list = loadPresetsFromStorage();
-  sel.innerHTML = '<option value="">— recall —</option>';
-  list.forEach((p) => {
-    const opt = document.createElement("option");
-    opt.value = p.id;
-    opt.textContent = p.name;
-    sel.appendChild(opt);
-  });
-  // Restore selection if still present
-  if (current && list.find((p) => p.id === current)) {
-    sel.value = current;
+
+  // Recall dropdown
+  const sel = document.getElementById("presetSelect");
+  if (sel) {
+    const current = sel.value;
+    sel.innerHTML = '<option value="">— recall —</option>';
+    list.forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name;
+      sel.appendChild(opt);
+    });
+    if (current && list.find((p) => p.id === current)) sel.value = current;
+  }
+
+  // Morph target dropdown
+  const msel = document.getElementById("morphSelect");
+  if (msel) {
+    const mcurrent = msel.value;
+    msel.innerHTML = '<option value="">— morph to —</option>';
+    list.forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name;
+      msel.appendChild(opt);
+    });
+    if (mcurrent && list.find((p) => p.id === mcurrent)) msel.value = mcurrent;
   }
 }
 
