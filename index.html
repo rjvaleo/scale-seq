@@ -530,7 +530,15 @@
 
         <!-- LFO 1 (filter) + LFO 2 (PWM) ROW -->
         <div class="synth-row">
-          <span class="row-label" style="color: #ff6b35">LFO 1 · FILTER</span>
+          <div class="lfo-label-col">
+            <span class="row-label" style="color: #ff6b35">LFO 1 · FILTER</span>
+            <canvas
+              id="lfoCanvas"
+              width="80"
+              height="44"
+              style="background: #0a0c0e; border: 1px solid #1e2830"
+            ></canvas>
+          </div>
           <div class="knob-group">
             <span class="knob-label">RATE</span>
             <div
@@ -579,17 +587,19 @@
               <option value="sawtooth">SAW</option>
             </select>
           </div>
-          <div class="knob-group" style="align-items: flex-start">
-            <span class="knob-label">LFO 1</span>
-            <canvas
-              id="lfoCanvas"
-              width="80"
-              height="44"
-              style="background: #0a0c0e; border: 1px solid #1e2830"
-            ></canvas>
-          </div>
+
           <div class="divider"></div>
-          <span class="row-label" style="color: #00e5ff">LFO 2 · PWM</span>
+          <div class="lfo-label-col">
+            <span class="row-label" style="color: #00e5ff">LFO 2 · PWM</span>
+            <div id="pwm2CanvasGroup" style="opacity: 0.35">
+              <canvas
+                id="lfo2Canvas"
+                width="80"
+                height="44"
+                style="background: #0a0c0e; border: 1px solid #1e2830"
+              ></canvas>
+            </div>
+          </div>
           <div class="knob-group" id="pwGroup" style="opacity: 0.35">
             <span class="knob-label">BASE PW</span>
             <div
@@ -655,19 +665,6 @@
               <option value="triangle">TRI</option>
               <option value="sawtooth">SAW</option>
             </select>
-          </div>
-          <div
-            class="knob-group"
-            id="pwm2CanvasGroup"
-            style="opacity: 0.35; align-items: flex-start"
-          >
-            <span class="knob-label">LFO 2</span>
-            <canvas
-              id="lfo2Canvas"
-              width="80"
-              height="44"
-              style="background: #0a0c0e; border: 1px solid #1e2830"
-            ></canvas>
           </div>
         </div>
 
