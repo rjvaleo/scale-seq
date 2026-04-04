@@ -1995,8 +1995,8 @@ function importPresets(input) {
       const imported = JSON.parse(e.target.result);
       if (!Array.isArray(imported)) throw new Error("not an array");
       const existing = loadPresetsFromStorage();
-      const existingIds = new Set(existing.map((p) => p.id));
-      const newOnes = imported.filter((p) => !existingIds.has(p.id));
+      const existingNames = new Set(existing.map((p) => p.name));
+      const newOnes = imported.filter((p) => !existingNames.has(p.name));
       savePresetsToStorage([...newOnes, ...existing]);
       renderPresetList();
       input.value = "";
