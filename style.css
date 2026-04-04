@@ -516,3 +516,52 @@ canvas.env-canvas {
   text-transform: uppercase;
   align-self: center;
 }
+
+/* ── ROTARY KNOB ─────────────────────────────────────────────────────────── */
+.knob-hidden {
+  display: none;
+}
+
+.knob {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a2530 60%, #0e1418 100%);
+  border: 2px solid var(--border);
+  position: relative;
+  cursor: ns-resize;
+  user-select: none;
+  box-shadow:
+    0 0 0 1px #0a0c0e,
+    inset 0 1px 3px rgba(0, 0, 0, 0.6);
+  transition: border-color 0.1s;
+}
+.knob:hover {
+  border-color: var(--accent);
+}
+.knob::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  height: 11px;
+  background: var(--accent);
+  top: 2px;
+  left: 50%;
+  transform-origin: bottom center;
+  transform: translateX(-50%) rotate(var(--rot, -135deg));
+  border-radius: 2px;
+}
+.knob.active {
+  border-color: var(--accent);
+}
+
+/* ADSR sub-block: canvas stacked above knob row */
+.adsr-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.adsr-knobs {
+  display: flex;
+  gap: 10px;
+}

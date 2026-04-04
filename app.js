@@ -175,8 +175,8 @@ const SCALES = [
     name: "Pythagorean Tuning",
     info: "Ancient Greek · 12 notes · 3-limit",
     cents: [
-      0, 114.0, 204.0, 294.1, 408.0, 498.0, 612.0, 702.0, 816.0, 906.1,
-      996.1, 1110.0,
+      0, 114.0, 204.0, 294.1, 408.0, 498.0, 612.0, 702.0, 816.0, 906.1, 996.1,
+      1110.0,
     ],
   },
   {
@@ -196,8 +196,8 @@ const SCALES = [
     name: "Five-Limit Just Intonation",
     info: "Historical · 12 notes · 5-limit",
     cents: [
-      0, 111.7, 203.9, 315.6, 386.3, 498.0, 590.2, 702.0, 813.7, 884.4,
-      996.1, 1088.3,
+      0, 111.7, 203.9, 315.6, 386.3, 498.0, 590.2, 702.0, 813.7, 884.4, 996.1,
+      1088.3,
     ],
   },
   {
@@ -205,8 +205,8 @@ const SCALES = [
     name: "Seven-Limit Just Intonation",
     info: "Contemporary · 12 notes · 7-limit",
     cents: [
-      0, 119.4, 203.9, 231.2, 386.3, 470.8, 582.5, 702.0, 764.9, 884.4,
-      968.8, 1017.6,
+      0, 119.4, 203.9, 231.2, 386.3, 470.8, 582.5, 702.0, 764.9, 884.4, 968.8,
+      1017.6,
     ],
   },
   {
@@ -214,8 +214,8 @@ const SCALES = [
     name: "Harmonic Series (partials 1–16)",
     info: "Universal/Overtone-based · 15 notes",
     cents: [
-      0, 203.9, 386.3, 498.0, 582.5, 702.0, 772.6, 840.5, 884.4, 968.8,
-      1017.6, 1049.4, 1088.3, 1145.0, 1200.0,
+      0, 203.9, 386.3, 498.0, 582.5, 702.0, 772.6, 840.5, 884.4, 968.8, 1017.6,
+      1049.4, 1088.3, 1145.0, 1200.0,
     ].slice(0, 14),
   },
   {
@@ -223,12 +223,11 @@ const SCALES = [
     name: "Partch 43-Tone Scale (first octave)",
     info: "Harry Partch · 43 notes · 11-limit",
     cents: [
-      0, 21.5, 35.7, 49.4, 63.2, 84.5, 111.7, 119.4, 139.5, 155.1, 168.9,
-      203.9, 222.5, 231.2, 266.9, 274.6, 294.1, 315.6, 333.8, 345.0,
-      386.3, 413.6, 422.1, 470.8, 498.0, 519.5, 529.0, 551.3, 582.5,
-      600.9, 617.5, 631.3, 649.0, 672.0, 700.0, 722.0, 741.2, 764.9,
-      772.6, 784.1, 813.7, 840.5, 884.4, 906.1, 914.8, 932.5, 996.1,
-      1017.6,
+      0, 21.5, 35.7, 49.4, 63.2, 84.5, 111.7, 119.4, 139.5, 155.1, 168.9, 203.9,
+      222.5, 231.2, 266.9, 274.6, 294.1, 315.6, 333.8, 345.0, 386.3, 413.6,
+      422.1, 470.8, 498.0, 519.5, 529.0, 551.3, 582.5, 600.9, 617.5, 631.3,
+      649.0, 672.0, 700.0, 722.0, 741.2, 764.9, 772.6, 784.1, 813.7, 840.5,
+      884.4, 906.1, 914.8, 932.5, 996.1, 1017.6,
     ].slice(0, 20),
   },
 
@@ -238,8 +237,8 @@ const SCALES = [
     name: "Meantone (Quarter-Comma)",
     info: "Renaissance/Baroque · 12 notes",
     cents: [
-      0, 76.0, 193.2, 310.3, 386.3, 503.4, 579.5, 696.6, 772.6, 889.7,
-      1006.8, 1082.9,
+      0, 76.0, 193.2, 310.3, 386.3, 503.4, 579.5, 696.6, 772.6, 889.7, 1006.8,
+      1082.9,
     ],
   },
   {
@@ -247,8 +246,8 @@ const SCALES = [
     name: "Werckmeister III",
     info: "Baroque · 12 notes · J.S. Bach era",
     cents: [
-      0, 90.2, 192.0, 294.1, 390.2, 498.0, 588.3, 696.1, 792.2, 888.3,
-      996.1, 1092.2,
+      0, 90.2, 192.0, 294.1, 390.2, 498.0, 588.3, 696.1, 792.2, 888.3, 996.1,
+      1092.2,
     ],
   },
   {
@@ -256,8 +255,8 @@ const SCALES = [
     name: "Kirnberger III",
     info: "18th century German · 12 notes",
     cents: [
-      0, 90.2, 203.9, 294.1, 386.3, 498.0, 590.2, 702.0, 792.2, 895.1,
-      996.1, 1088.3,
+      0, 90.2, 203.9, 294.1, 386.3, 498.0, 590.2, 702.0, 792.2, 895.1, 996.1,
+      1088.3,
     ],
   },
   {
@@ -265,8 +264,8 @@ const SCALES = [
     name: "Vallotti Temperament",
     info: "18th century Italian · 12 notes",
     cents: [
-      0, 94.1, 196.1, 298.0, 392.2, 501.9, 594.1, 698.0, 796.1, 894.1,
-      1000.0, 1094.1,
+      0, 94.1, 196.1, 298.0, 392.2, 501.9, 594.1, 698.0, 796.1, 894.1, 1000.0,
+      1094.1,
     ],
   },
   {
@@ -285,10 +284,7 @@ const SCALES = [
     cat: "HISTORICAL TEMPERAMENTS",
     name: "53-EDO",
     info: "Theoretical · 53 equal divisions",
-    cents: Array.from({ length: 53 }, (_, i) => i * (1200 / 53)).slice(
-      0,
-      12,
-    ),
+    cents: Array.from({ length: 53 }, (_, i) => i * (1200 / 53)).slice(0, 12),
   },
 
   // MICROTONAL AND CONTEMPORARY
@@ -314,10 +310,7 @@ const SCALES = [
     cat: "MICROTONAL & CONTEMPORARY",
     name: "72-EDO",
     info: "Franz Richter Herf · 72 divisions · sixth-tones",
-    cents: Array.from({ length: 72 }, (_, i) => i * (1200 / 72)).slice(
-      0,
-      13,
-    ),
+    cents: Array.from({ length: 72 }, (_, i) => i * (1200 / 72)).slice(0, 13),
   },
   {
     cat: "MICROTONAL & CONTEMPORARY",
@@ -460,8 +453,8 @@ const SCALES = [
     name: "22-Shruti Scale",
     info: "Indian classical theory · 22 microtones",
     cents: [
-      0, 22, 90, 112, 182, 204, 270, 294, 316, 386, 408, 498, 520, 590,
-      612, 702, 724, 792, 814, 884, 906, 996,
+      0, 22, 90, 112, 182, 204, 270, 294, 316, 386, 408, 498, 520, 590, 612,
+      702, 724, 792, 814, 884, 906, 996,
     ],
   },
   {
@@ -579,6 +572,23 @@ let pulseWidth = 0.5; // base duty cycle for pulse wave
 let currentPW = 0.5; // LFO-modulated pulse width
 let lfoAnimId = null;
 let lfoAnimPhase = 0;
+
+// ─── LFO 2 (PWM) STATE ───────────────────────────────────────────────────────
+let lfo2Rate = 0.6; // Hz
+let lfo2Depth = 0.25; // 0–1
+let lfo2Wave = "sine";
+let lfo2Phase = 0;
+let lfo2AnimId = null;
+let lfo2AnimPhase = 0;
+
+// ─── FILTER ADSR STATE ───────────────────────────────────────────────────────
+let filterADSR = { a: 10, d: 150, s: 0.3, r: 300 };
+let filterADSRamt = 0.5; // -1..+1 (mapped from -100..+100 slider)
+
+// ─── KEY FOLLOW STATE ────────────────────────────────────────────────────────
+let keyFollow = 0.0; // 0..1 (slider 0–100)
+// Reference MIDI note for key-follow (centre of keyboard, C4 = MIDI 60)
+const KEY_FOLLOW_REF_MIDI = 60;
 
 // ─── DELAY STATE ─────────────────────────────────────────────────────────────
 let delaySubdiv = 0.5; // beats (1/8 note default)
@@ -698,6 +708,37 @@ function playNote(freq, time) {
   env.gain.linearRampToValueAtTime(0, time + noteDur + r);
   osc.start(time);
   osc.stop(time + noteDur + r + 0.05);
+
+  // ── Filter ADSR + Key-Follow per note ──────────────────────────────────────
+  // Key-follow: shift cutoff by semitones relative to KEY_FOLLOW_REF_MIDI
+  // freq → approximate MIDI pitch
+  const noteMidi = 69 + 12 * Math.log2(freq / 440);
+  const semiOffset = (noteMidi - KEY_FOLLOW_REF_MIDI) * keyFollow;
+  const kfMult = Math.pow(2, semiOffset / 12);
+  const baseCutoff = Math.min(20000, filterCutoff * kfMult);
+
+  // Filter ADSR modulation: automate filterNode.frequency
+  const fa = filterADSR.a / 1000;
+  const fd = filterADSR.d / 1000;
+  const fs = filterADSR.s;
+  const fr = filterADSR.r / 1000;
+  // amount: map filterADSRamt (-1..+1) to a semitone range (±48 semitones)
+  const maxDelta = baseCutoff * (Math.pow(2, 4) - 1); // 4 octaves max sweep
+  const peakCutoff = Math.min(
+    20000,
+    Math.max(20, baseCutoff + filterADSRamt * maxDelta),
+  );
+  const susCutoff = Math.min(
+    20000,
+    Math.max(20, baseCutoff + filterADSRamt * maxDelta * fs),
+  );
+
+  filterNode.frequency.cancelScheduledValues(time);
+  filterNode.frequency.setValueAtTime(baseCutoff, time);
+  filterNode.frequency.linearRampToValueAtTime(peakCutoff, time + fa);
+  filterNode.frequency.linearRampToValueAtTime(susCutoff, time + fa + fd);
+  filterNode.frequency.setValueAtTime(susCutoff, time + noteDur);
+  filterNode.frequency.linearRampToValueAtTime(baseCutoff, time + noteDur + fr);
 }
 
 // ─── SCALE COMPUTATION ───────────────────────────────────────────────────────
@@ -786,12 +827,12 @@ function scheduler() {
   while (nextNoteTime < audioCtx.currentTime + lookAhead) {
     const step = steps[currentStep];
     const stepDur = (60 / bpm) * stepBeats;
-    // LFO phase-advance per step for PWM modulation
+    // LFO 2 phase-advance per step for PWM modulation
     if (waveType === "pulse") {
-      const lfoVal = Math.sin(lfoPhase);
+      const lfo2Val = Math.sin(lfo2Phase);
       currentPW = Math.max(
         0.05,
-        Math.min(0.95, pulseWidth + lfoVal * lfoDepth * 0.45),
+        Math.min(0.95, pulseWidth + lfo2Val * lfo2Depth * 0.45),
       );
     }
     if (!step.rest) {
@@ -810,6 +851,7 @@ function scheduler() {
       );
     }
     lfoPhase += lfoRate * stepDur * 2 * Math.PI;
+    lfo2Phase += lfo2Rate * stepDur * 2 * Math.PI;
     nextNoteTime += stepDur;
     getNextStep();
   }
@@ -842,13 +884,11 @@ function updatePlayingUI(stepIdx, freq, deg) {
   if (keyEl) keyEl.classList.add("playing-key");
   // Status
   document.getElementById("statusNote").textContent = `DEG ${deg + 1}`;
-  document.getElementById("statusFreq").textContent =
-    `${freq.toFixed(2)} Hz`;
+  document.getElementById("statusFreq").textContent = `${freq.toFixed(2)} Hz`;
   document.getElementById("statusStep").textContent = stepIdx + 1;
   const bar = Math.floor(stepIdx / 4) + 1;
   const beat = (stepIdx % 4) + 1;
-  document.getElementById("posDisplay").textContent =
-    `0${bar} · 0${beat}`;
+  document.getElementById("posDisplay").textContent = `0${bar} · 0${beat}`;
 }
 
 function togglePlay() {
@@ -914,6 +954,11 @@ function updateEnv() {
     Math.round(adsr.s * 100) + "%";
   document.getElementById("relVal").textContent = adsr.r + "ms";
   drawADSRCanvas();
+  if (window.updateKnobVisual) {
+    ["atkSlider", "decSlider", "susSlider", "relSlider", "volSlider"].forEach(
+      window.updateKnobVisual,
+    );
+  }
 }
 
 function updateVol(v) {
@@ -938,8 +983,18 @@ function buildPulseWave(width) {
 
 function setWaveType(v) {
   waveType = v;
-  document.getElementById("pwGroup").style.opacity =
-    v === "pulse" ? "1" : "0.35";
+  const isPulse = v === "pulse";
+  document.getElementById("pwGroup").style.opacity = isPulse ? "1" : "0.35";
+  document.getElementById("pwm2Group").style.opacity = isPulse ? "1" : "0.35";
+  document.getElementById("pwm2DepthGroup").style.opacity = isPulse
+    ? "1"
+    : "0.35";
+  document.getElementById("pwm2ShapeGroup").style.opacity = isPulse
+    ? "1"
+    : "0.35";
+  document.getElementById("pwm2CanvasGroup").style.opacity = isPulse
+    ? "1"
+    : "0.35";
 }
 
 // ─── FILTER CONTROLS ──────────────────────────────────────────────────────────
@@ -957,8 +1012,7 @@ function updateFilter() {
     filterCutoff >= 1000
       ? (filterCutoff / 1000).toFixed(1) + "kHz"
       : Math.round(filterCutoff) + "Hz";
-  document.getElementById("resVal").textContent =
-    "Q " + filterRes.toFixed(1);
+  document.getElementById("resVal").textContent = "Q " + filterRes.toFixed(1);
 }
 
 // ─── LFO CONTROLS ─────────────────────────────────────────────────────────────
@@ -983,16 +1037,49 @@ function updatePW(v) {
   document.getElementById("pwVal").textContent = v + "%";
 }
 
+// ─── LFO 2 (PWM) CONTROLS ─────────────────────────────────────────────────
+function updatePwLFO() {
+  const rv = parseInt(document.getElementById("lfo2RateSlider").value);
+  const dv = parseInt(document.getElementById("lfo2DepthSlider").value);
+  lfo2Wave = document.getElementById("lfo2WaveSelect").value;
+  lfo2Rate = 0.05 * Math.pow(400, rv / 100);
+  lfo2Depth = dv / 100;
+  document.getElementById("lfo2RateVal").textContent =
+    (lfo2Rate < 1 ? lfo2Rate.toFixed(2) : lfo2Rate.toFixed(1)) + "Hz";
+  document.getElementById("lfo2DepthVal").textContent = dv + "%";
+}
+
+// ─── FILTER ADSR CONTROLS ─────────────────────────────────────────────────
+function updateFilterADSR() {
+  filterADSR.a = parseInt(document.getElementById("fatkSlider").value);
+  filterADSR.d = parseInt(document.getElementById("fdecSlider").value);
+  filterADSR.s = parseInt(document.getElementById("fsusSlider").value) / 100;
+  filterADSR.r = parseInt(document.getElementById("frelSlider").value);
+  const amtRaw = parseInt(document.getElementById("famtSlider").value);
+  filterADSRamt = amtRaw / 100;
+  document.getElementById("fatkVal").textContent = filterADSR.a + "ms";
+  document.getElementById("fdecVal").textContent = filterADSR.d + "ms";
+  document.getElementById("fsusVal").textContent =
+    Math.round(filterADSR.s * 100) + "%";
+  document.getElementById("frelVal").textContent = filterADSR.r + "ms";
+  document.getElementById("famtVal").textContent =
+    (amtRaw >= 0 ? "+" : "") + amtRaw + "%";
+  drawFilterADSRCanvas();
+}
+
+// ─── KEY FOLLOW CONTROLS ──────────────────────────────────────────────────
+function updateKeyFollow() {
+  keyFollow = parseInt(document.getElementById("keyFollowSlider").value) / 100;
+  document.getElementById("keyFollowVal").textContent =
+    Math.round(keyFollow * 100) + "%";
+}
+
 // ─── DELAY CONTROLS ──────────────────────────────────────────────────────────
 function updateDelay() {
-  delaySubdiv = parseFloat(
-    document.getElementById("delayTimeSelect").value,
-  );
+  delaySubdiv = parseFloat(document.getElementById("delayTimeSelect").value);
   const fbV = parseInt(document.getElementById("delayFbSlider").value);
   const wetV = parseInt(document.getElementById("delayWetSlider").value);
-  const sprV = parseInt(
-    document.getElementById("delaySpreadSlider").value,
-  );
+  const sprV = parseInt(document.getElementById("delaySpreadSlider").value);
   const hcV = parseInt(document.getElementById("delayHiCutSlider").value);
   delayFeedback = fbV / 100;
   delayWet = wetV / 100;
@@ -1063,8 +1150,7 @@ function drawPPCanvas() {
     ctx.stroke();
   }
   // R echo (second half)
-  const rPulse =
-    phase2 >= 0.5 ? Math.pow(1 - (phase2 - 0.5) * 2, 0.4) : 0;
+  const rPulse = phase2 >= 0.5 ? Math.pow(1 - (phase2 - 0.5) * 2, 0.4) : 0;
   ctx.beginPath();
   ctx.arc(W * 0.75, midY, 4 + rPulse * 5, 0, Math.PI * 2);
   ctx.fillStyle = `rgba(255,107,53,${0.12 + rPulse * 0.88})`;
@@ -1159,6 +1245,61 @@ function drawADSRCanvas() {
   c.fillText("R", (xS + xR) / 2, yBot - 2);
 }
 
+// ─── FILTER ADSR CANVAS ──────────────────────────────────────────────────────
+function drawFilterADSRCanvas() {
+  const canvas = document.getElementById("fadsrCanvas");
+  if (!canvas) return;
+  const W = canvas.width,
+    H = canvas.height;
+  const c = canvas.getContext("2d");
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = "#0a0c0e";
+  c.fillRect(0, 0, W, H);
+  const a = filterADSR.a,
+    d = filterADSR.d,
+    s = filterADSR.s,
+    r = filterADSR.r;
+  const hold = Math.max(a + d, 120);
+  const total = a + d + hold + r;
+  const pad = 4;
+  const w = W - pad * 2,
+    h = H - pad * 2 - 6;
+  const xA = pad + (a / total) * w;
+  const xD = xA + (d / total) * w;
+  const xS = xD + (hold / total) * w;
+  const xR = pad + w;
+  const yTop = pad,
+    yBot = pad + h;
+  // for positive amt: peak is at top; for negative: peak is at bottom
+  const ySus = yBot - h * s * Math.abs(filterADSRamt);
+  const yPeak = filterADSRamt >= 0 ? yTop : yBot;
+  c.beginPath();
+  c.moveTo(pad, yBot);
+  c.lineTo(xA, yPeak);
+  c.lineTo(xD, ySus);
+  c.lineTo(xS, ySus);
+  c.lineTo(xR, yBot);
+  c.closePath();
+  c.fillStyle = "rgba(255,107,53,0.07)";
+  c.fill();
+  c.beginPath();
+  c.moveTo(pad, yBot);
+  c.lineTo(xA, yPeak);
+  c.lineTo(xD, ySus);
+  c.lineTo(xS, ySus);
+  c.lineTo(xR, yBot);
+  c.strokeStyle = "#ff6b35";
+  c.lineWidth = 1.5;
+  c.stroke();
+  c.fillStyle = "#4a6070";
+  c.font = "7px monospace";
+  c.textAlign = "center";
+  c.fillText("A", (pad + xA) / 2, yBot + 6);
+  c.fillText("D", (xA + xD) / 2, yBot + 6);
+  c.fillText("S", (xD + xS) / 2, yBot + 6);
+  c.fillText("R", (xS + xR) / 2, yBot + 6);
+}
+
 // ─── LFO CANVAS ──────────────────────────────────────────────────────────────
 function drawLFOCanvas() {
   const canvas = document.getElementById("lfoCanvas");
@@ -1202,6 +1343,48 @@ function drawLFOCanvas() {
   lfoAnimId = requestAnimationFrame(drawLFOCanvas);
 }
 
+// ─── LFO 2 CANVAS ────────────────────────────────────────────────────────────
+function drawLFO2Canvas() {
+  const canvas = document.getElementById("lfo2Canvas");
+  if (!canvas) return;
+  const W = canvas.width,
+    H = canvas.height;
+  const c = canvas.getContext("2d");
+  c.clearRect(0, 0, W, H);
+  c.fillStyle = "#0a0c0e";
+  c.fillRect(0, 0, W, H);
+  c.beginPath();
+  c.moveTo(0, H / 2);
+  c.lineTo(W, H / 2);
+  c.strokeStyle = "#1e2830";
+  c.lineWidth = 1;
+  c.stroke();
+  const shape = lfo2Wave;
+  const cycles = 2.5;
+  c.beginPath();
+  for (let x = 0; x <= W; x++) {
+    const t = (x / W) * cycles * 2 * Math.PI + lfo2AnimPhase;
+    let y;
+    if (shape === "sine") {
+      y = Math.sin(t);
+    } else if (shape === "triangle") {
+      const p = (((t / (2 * Math.PI)) % 1) + 1) % 1;
+      y = p < 0.5 ? 4 * p - 1 : 3 - 4 * p;
+    } else {
+      const p = (((t / (2 * Math.PI)) % 1) + 1) % 1;
+      y = 2 * p - 1;
+    }
+    const cy = H / 2 - y * (H / 2 - 4);
+    if (x === 0) c.moveTo(x, cy);
+    else c.lineTo(x, cy);
+  }
+  c.strokeStyle = "#00e5ff";
+  c.lineWidth = 1.5;
+  c.stroke();
+  lfo2AnimPhase += 0.04 * lfo2Rate;
+  lfo2AnimId = requestAnimationFrame(drawLFO2Canvas);
+}
+
 function updateRoot() {
   rootMidi = parseInt(document.getElementById("rootSelect").value);
   rootOctave = parseInt(document.getElementById("octaveSelect").value);
@@ -1209,8 +1392,7 @@ function updateRoot() {
   // A4 = MIDI 69 = 440 Hz
   const midiNum = rootMidi + rootOctave * 12;
   rootHz = 440 * Math.pow(2, (midiNum - 69) / 12);
-  document.getElementById("rootHzDisplay").textContent =
-    rootHz.toFixed(2);
+  document.getElementById("rootHzDisplay").textContent = rootHz.toFixed(2);
   const noteNames = ["C", "D", "E", "F", "G", "A", "B"];
   const noteName =
     noteNames[
@@ -1234,8 +1416,7 @@ function updateRoot() {
         }).indexOf(String(rootMidi))
       ]
     ];
-  document.getElementById("statusRoot").textContent =
-    `${rootHz.toFixed(2)} Hz`;
+  document.getElementById("statusRoot").textContent = `${rootHz.toFixed(2)} Hz`;
   renderScaleDegrees();
   renderKeyboard();
 }
@@ -1250,8 +1431,7 @@ function selectScale(idx) {
   document.getElementById("activeScaleName").textContent =
     scale.name.toUpperCase();
   document.getElementById("activeScaleInfo").textContent = scale.info;
-  document.getElementById("statusScale").textContent =
-    scale.name.toUpperCase();
+  document.getElementById("statusScale").textContent = scale.name.toUpperCase();
   renderScaleDegrees();
   renderKeyboard();
   renderStepGrid();
@@ -1394,6 +1574,134 @@ function renderScaleList() {
   });
 }
 
+// ─── ROTARY KNOB DRAG SYSTEM ─────────────────────────────────────────────────
+(function () {
+  let activeKnobInput = null;
+  let dragStartY = 0;
+  let dragStartVal = 0;
+
+  function getKnobAngle(inputId) {
+    const inp = document.getElementById(inputId);
+    if (!inp) return -135;
+    const min = parseFloat(inp.min);
+    const max = parseFloat(inp.max);
+    const val = parseFloat(inp.value);
+    const t = (val - min) / (max - min);
+    return -135 + t * 270;
+  }
+
+  function updateKnobVisual(inputId) {
+    // find sibling .knob via closest .knob-group
+    const inp = document.getElementById(inputId);
+    if (!inp) return;
+    const group = inp.closest(".knob-group");
+    if (!group) return;
+    const knobEl = group.querySelector(".knob");
+    if (!knobEl) return;
+    const angle = getKnobAngle(inputId);
+    // Rotate the indicator pseudo-element via CSS variable
+    knobEl.style.setProperty("--rot", angle + "deg");
+    // Update conic gradient to show filled arc
+    const min = parseFloat(inp.min);
+    const max = parseFloat(inp.max);
+    const val = parseFloat(inp.value);
+    const t = (val - min) / (max - min);
+    const startDeg = 135; // conic starts at 0 = top, rotated by transform
+    const fillDeg = t * 270;
+    knobEl.style.background = `conic-gradient(
+      from ${startDeg}deg,
+      var(--accent) 0deg,
+      var(--accent) ${fillDeg}deg,
+      var(--dim) ${fillDeg}deg,
+      var(--dim) 270deg,
+      transparent 270deg
+    )`;
+    const pseudo = knobEl.querySelector ? null : null;
+    knobEl.style.transform = ""; // marker handled via ::after rotation
+    // hacky but effective: use a CSS custom property that we read in style
+    knobEl.style.setProperty("--rot", angle + "deg");
+  }
+
+  function onMove(e) {
+    if (!activeKnobInput) return;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const delta = dragStartY - clientY; // positive = drag up = increase
+    const inp = document.getElementById(activeKnobInput);
+    if (!inp) return;
+    const min = parseFloat(inp.min);
+    const max = parseFloat(inp.max);
+    const range = max - min;
+    // sensitivity: full range over ~200px drag
+    const newVal = Math.min(
+      max,
+      Math.max(min, dragStartVal + (delta / 200) * range),
+    );
+    inp.value = newVal;
+    inp.dispatchEvent(new Event("input", { bubbles: true }));
+    updateKnobVisual(activeKnobInput);
+  }
+
+  function onUp() {
+    if (activeKnobInput) {
+      const inp = document.getElementById(activeKnobInput);
+      if (inp) {
+        const group = inp.closest(".knob-group");
+        if (group) {
+          const knobEl = group.querySelector(".knob");
+          if (knobEl) knobEl.classList.remove("active");
+        }
+      }
+    }
+    activeKnobInput = null;
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+    document.removeEventListener("touchmove", onMove);
+    document.removeEventListener("touchend", onUp);
+  }
+
+  window.knobDown = function (e, inputId) {
+    e.preventDefault();
+    activeKnobInput = inputId;
+    dragStartY = e.clientY;
+    const inp = document.getElementById(inputId);
+    dragStartVal = inp ? parseFloat(inp.value) : 0;
+    const group = inp ? inp.closest(".knob-group") : null;
+    if (group) {
+      const knobEl = group.querySelector(".knob");
+      if (knobEl) knobEl.classList.add("active");
+    }
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  };
+
+  window.knobTouchStart = function (e, inputId) {
+    e.preventDefault();
+    activeKnobInput = inputId;
+    dragStartY = e.touches[0].clientY;
+    const inp = document.getElementById(inputId);
+    dragStartVal = inp ? parseFloat(inp.value) : 0;
+    document.addEventListener("touchmove", onMove, { passive: false });
+    document.addEventListener("touchend", onUp);
+  };
+
+  // Initialize all knob visuals after DOM is ready
+  function initKnobVisuals() {
+    document.querySelectorAll(".knob-hidden").forEach((inp) => {
+      updateKnobVisual(inp.id);
+    });
+  }
+
+  // Run after page load
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initKnobVisuals);
+  } else {
+    initKnobVisuals();
+  }
+
+  // Expose for external calls (e.g. after updateEnv)
+  window.updateKnobVisual = updateKnobVisual;
+})();
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderScaleList();
 selectScale(0); // Default: Pythagorean
@@ -1401,8 +1709,12 @@ renderStepGrid();
 updateEnv();
 updateFilter();
 updateLFO();
+updatePwLFO();
+updateFilterADSR();
+updateKeyFollow();
 updateDelay();
 drawLFOCanvas();
+drawLFO2Canvas();
 drawPPCanvas();
 
 // Auto-resume AudioContext on first interaction
