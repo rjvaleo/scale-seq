@@ -560,6 +560,11 @@ canvas.env-canvas {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  width: fit-content;
+}
+.adsr-block > canvas {
+  width: 100%;
+  display: block;
 }
 .adsr-knobs {
   display: flex;

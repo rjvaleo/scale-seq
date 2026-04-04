@@ -1182,6 +1182,8 @@ function drawPPCanvas() {
 function drawADSRCanvas() {
   const canvas = document.getElementById("adsrCanvas");
   if (!canvas) return;
+  const cssW = canvas.offsetWidth;
+  if (cssW > 0 && canvas.width !== cssW) canvas.width = cssW;
   const W = canvas.width,
     H = canvas.height;
   const c = canvas.getContext("2d");
@@ -1249,6 +1251,8 @@ function drawADSRCanvas() {
 function drawFilterADSRCanvas() {
   const canvas = document.getElementById("fadsrCanvas");
   if (!canvas) return;
+  const cssW = canvas.offsetWidth;
+  if (cssW > 0 && canvas.width !== cssW) canvas.width = cssW;
   const W = canvas.width,
     H = canvas.height;
   const c = canvas.getContext("2d");
