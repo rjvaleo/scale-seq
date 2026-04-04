@@ -97,8 +97,36 @@
           >
             ✕
           </button>
+          <button
+            class="btn preset-morph-btn"
+            onclick="
+              morphToPreset(document.getElementById('presetSelect').value)
+            "
+            title="Morph to selected preset over the morph time"
+          >
+            ⟿ MORPH
+          </button>
         </div>
-        <div class="preset-controls">
+        <div class="preset-controls preset-controls-row2">
+          <div class="knob-group knob-group-inline">
+            <span class="knob-label">MORPH</span>
+            <div
+              class="knob"
+              onmousedown="knobDown(event, 'morphTimeSlider')"
+              ontouchstart="knobTouchStart(event,'morphTimeSlider')"
+            ></div>
+            <input
+              type="range"
+              class="knob-hidden"
+              id="morphTimeSlider"
+              min="0.5"
+              max="30"
+              step="0.5"
+              value="5"
+              oninput="updateMorphTime(this.value)"
+            />
+            <span class="knob-val" id="morphTimeVal">5.0s</span>
+          </div>
           <button
             class="btn preset-export-btn"
             onclick="exportPresets()"
@@ -124,6 +152,15 @@
         <span class="preset-name-display" id="presetNameDisplay"
           >NO PRESET</span
         >
+      </div>
+      <div class="divider"></div>
+      <!-- CAPTURE -->
+      <div class="capture-group">
+        <span class="knob-label">CAPTURE</span>
+        <div class="capture-controls">
+          <button class="btn" id="captureBtn" onclick="toggleCapture()">⏺ REC</button>
+          <span class="capture-timer" id="captureTimer"></span>
+        </div>
       </div>
     </div>
 

@@ -608,6 +608,17 @@ let delayFbGainLR = null,
   delayFbGainRL = null;
 let ppAnimId = null;
 
+// ─── MORPH STATE ─────────────────────────────────────────────────────────────
+let morphDuration = 5.0; // seconds
+let morphRafId = null;
+
+// ─── CAPTURE STATE ────────────────────────────────────────────────────────────
+let captureDestNode = null;
+let mediaRecorder = null;
+let captureChunks = [];
+let captureTimerInterval = null;
+let captureStartTime = 0;
+
 // Step data: array of { degree: number, rest: boolean }
 let steps = Array.from({ length: 16 }, (_, i) => ({
   degree: i % 7,
@@ -625,6 +636,10 @@ function initAudio() {
   filterNode.frequency.value = filterCutoff;
   filterNode.Q.value = filterRes;
   masterGain.connect(audioCtx.destination);
+
+  // ── Capture destination (MediaRecorder taps here) ────────────────────────
+  captureDestNode = audioCtx.createMediaStreamDestination();
+  masterGain.connect(captureDestNode);
 
   // Dry path: filter → dryGain → masterGain
   delayDryGain = audioCtx.createGain();
@@ -2029,6 +2044,200 @@ async function initPresets() {
     }
   }
   renderPresetList();
+}
+
+// ─── PRESET MORPH ────────────────────────────────────────────────────────────
+function updateMorphTime(v) {
+  morphDuration = parseFloat(v);
+  document.getElementById("morphTimeVal").textContent =
+    morphDuration.toFixed(1) + "s";
+}
+
+function morphToPreset(id) {
+  if (!id) return;
+  const list = loadPresetsFromStorage();
+  const preset = list.find((p) => p.id === id);
+  if (!preset) return;
+
+  // Cancel any in-progress morph
+  if (morphRafId) {
+    cancelAnimationFrame(morphRafId);
+    morphRafId = null;
+  }
+
+  const SLIDER_IDS = [
+    "bpmSlider",
+    "stepsSlider",
+    "atkSlider",
+    "decSlider",
+    "susSlider",
+    "relSlider",
+    "volSlider",
+    "cutoffSlider",
+    "resSlider",
+    "keyFollowSlider",
+    "fatkSlider",
+    "fdecSlider",
+    "fsusSlider",
+    "frelSlider",
+    "famtSlider",
+    "lfoRateSlider",
+    "lfoDepthSlider",
+    "pwSlider",
+    "lfo2RateSlider",
+    "lfo2DepthSlider",
+    "delayFbSlider",
+    "delayWetSlider",
+    "delaySpreadSlider",
+    "delayHiCutSlider",
+  ];
+
+  // Snapshot start values
+  const startVals = {};
+  const targetVals = {};
+  SLIDER_IDS.forEach((sid) => {
+    const el = document.getElementById(sid);
+    if (!el) return;
+    startVals[sid] = parseFloat(el.value);
+    const tv =
+      preset.state.sliders && preset.state.sliders[sid] !== undefined
+        ? parseFloat(preset.state.sliders[sid])
+        : parseFloat(el.value);
+    targetVals[sid] = tv;
+  });
+
+  // Apply non-interpolatable state immediately (selects, steps, scale)
+  const SELECT_IDS = [
+    "dirSelect",
+    "stepLenSelect",
+    "waveSelect",
+    "rootSelect",
+    "octaveSelect",
+    "lfoWaveSelect",
+    "lfo2WaveSelect",
+    "delayTimeSelect",
+  ];
+  SELECT_IDS.forEach((sid) => {
+    const el = document.getElementById(sid);
+    if (!el || !preset.state.selects) return;
+    if (preset.state.selects[sid] !== undefined) {
+      el.value = preset.state.selects[sid];
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  });
+  if (Array.isArray(preset.state.steps)) {
+    preset.state.steps.forEach((s, i) => {
+      if (i < steps.length) {
+        steps[i].degree = s.degree;
+        steps[i].rest = s.rest;
+      }
+    });
+    renderStepGrid();
+  }
+  if (typeof preset.state.scaleIdx === "number")
+    selectScale(preset.state.scaleIdx);
+
+  const display = document.getElementById("presetNameDisplay");
+  if (display) display.textContent = "◌ " + preset.name;
+
+  const startTime = performance.now();
+  const durationMs = morphDuration * 1000;
+
+  function frame(now) {
+    const t = Math.min(1, (now - startTime) / durationMs);
+    SLIDER_IDS.forEach((sid) => {
+      const el = document.getElementById(sid);
+      if (!el) return;
+      el.value = startVals[sid] + (targetVals[sid] - startVals[sid]) * t;
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      if (window.updateKnobVisual) window.updateKnobVisual(sid);
+    });
+    if (t < 1) {
+      morphRafId = requestAnimationFrame(frame);
+    } else {
+      morphRafId = null;
+      drawADSRCanvas();
+      drawFilterADSRCanvas();
+      if (display) display.textContent = preset.name;
+    }
+  }
+
+  morphRafId = requestAnimationFrame(frame);
+}
+
+// ─── AUDIO CAPTURE ───────────────────────────────────────────────────────────
+function toggleCapture() {
+  if (mediaRecorder && mediaRecorder.state === "recording") {
+    mediaRecorder.stop();
+  } else {
+    startCapture();
+  }
+}
+
+function startCapture() {
+  if (!audioCtx) initAudio();
+  if (!captureDestNode) {
+    captureDestNode = audioCtx.createMediaStreamDestination();
+    masterGain.connect(captureDestNode);
+  }
+
+  captureChunks = [];
+  const mimeType =
+    ["audio/webm;codecs=opus", "audio/webm", "audio/ogg"].find((m) =>
+      MediaRecorder.isTypeSupported(m),
+    ) || "";
+
+  mediaRecorder = new MediaRecorder(
+    captureDestNode.stream,
+    mimeType ? { mimeType } : undefined,
+  );
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) captureChunks.push(e.data);
+  };
+
+  mediaRecorder.onstop = () => {
+    clearInterval(captureTimerInterval);
+    const blob = new Blob(captureChunks, {
+      type: mediaRecorder.mimeType || "audio/webm",
+    });
+    const ext = (mediaRecorder.mimeType || "audio/webm").includes("ogg")
+      ? "ogg"
+      : "webm";
+    const ts = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `scale-seq-${ts}.${ext}`;
+    a.click();
+    URL.revokeObjectURL(url);
+    // Reset button
+    const btn = document.getElementById("captureBtn");
+    if (btn) {
+      btn.textContent = "⏺ REC";
+      btn.classList.remove("capturing");
+    }
+    document.getElementById("captureTimer").textContent = "";
+  };
+
+  mediaRecorder.start(250); // collect chunks every 250ms
+  captureStartTime = Date.now();
+
+  const btn = document.getElementById("captureBtn");
+  if (btn) {
+    btn.textContent = "⏹ STOP";
+    btn.classList.add("capturing");
+  }
+
+  captureTimerInterval = setInterval(() => {
+    const s = Math.floor((Date.now() - captureStartTime) / 1000);
+    const m = Math.floor(s / 60)
+      .toString()
+      .padStart(2, "0");
+    const sc = (s % 60).toString().padStart(2, "0");
+    const el = document.getElementById("captureTimer");
+    if (el) el.textContent = `${m}:${sc}`;
+  }, 500);
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────

@@ -651,3 +651,69 @@ canvas.env-canvas {
   border-color: var(--text);
   color: var(--text);
 }
+.preset-morph-btn {
+  border-color: var(--accent3);
+  color: var(--accent3);
+  font-size: 10px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.preset-morph-btn:hover {
+  background: var(--accent3);
+  color: var(--bg);
+}
+.preset-controls-row2 {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+/* inline knob-group for morph time inside preset row */
+.knob-group-inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+.knob-group-inline .knob-label {
+  white-space: nowrap;
+}
+
+/* ── CAPTURE ─────────────────────────────────────────────────────────────── */
+.capture-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 80px;
+}
+.capture-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+#captureBtn {
+  white-space: nowrap;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+#captureBtn:hover {
+  background: var(--accent2);
+  color: var(--bg);
+}
+#captureBtn.capturing {
+  border-color: #ff3333;
+  color: #ff3333;
+  animation: rec-pulse 1s ease-in-out infinite;
+}
+@keyframes rec-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.capture-timer {
+  font-size: 11px;
+  font-family: "Share Tech Mono", monospace;
+  color: #ff3333;
+  letter-spacing: 1px;
+  min-width: 36px;
+}
