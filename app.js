@@ -1706,6 +1706,260 @@ function renderScaleList() {
   window.updateKnobVisual = updateKnobVisual;
 })();
 
+// ─── PRESET SYSTEM ───────────────────────────────────────────────────────────
+const PRESET_KEY = "scaleSeqPresets";
+
+const VONNEGUT_ADJ = [
+  "Unstuck",
+  "Tralfamadorian",
+  "Bokonist",
+  "Chronosynclastic",
+  "Fatalistic",
+  "Granfalloon",
+  "Karass",
+  "Wampeterian",
+  "Dresden",
+  "Pilgrim",
+  "Deadeye",
+  "Timequake",
+  "Harmonic",
+  "Sinooká",
+  "Nothingburger",
+  "Ice-Nine",
+  "Unglued",
+  "Infundibulated",
+  "Fata-Tisi",
+  "Lamentable",
+  "Earnest",
+  "Peculiar",
+  "Listless",
+  "Sanguine",
+  "Aberrant",
+  "Tranquil",
+  "Effervescent",
+  "Lugubrious",
+  "Sardonic",
+  "Absurdist",
+  "Galactic",
+  "Rumfoordian",
+  "Wakefield",
+  "Parabolic",
+  "Oscillating",
+];
+const VONNEGUT_NOUN = [
+  "Groove",
+  "Waltz",
+  "Cascade",
+  "Fugue",
+  "Drift",
+  "Requiem",
+  "Passage",
+  "Tremolo",
+  "Sequence",
+  "Interlude",
+  "Oscillation",
+  "Lullaby",
+  "Elegy",
+  "Resonance",
+  "Reverie",
+  "Soliloquy",
+  "Prelude",
+  "Coda",
+  "Bop",
+  "Aria",
+  "Nocturne",
+  "Fantasia",
+  "March",
+  "Toccata",
+  "Overture",
+  "Raga",
+  "Étude",
+  "Schmaltz",
+  "Waltz",
+  "Sérénade",
+  "Episode",
+  "Threshold",
+  "Chronicle",
+  "Transmission",
+  "Broadcast",
+  "Frequency",
+  "Signal",
+];
+
+function generatePresetName() {
+  const adj = VONNEGUT_ADJ[Math.floor(Math.random() * VONNEGUT_ADJ.length)];
+  const noun = VONNEGUT_NOUN[Math.floor(Math.random() * VONNEGUT_NOUN.length)];
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const stamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  return `${adj} ${noun} · ${stamp}`;
+}
+
+function getPresetState() {
+  // Capture every slider/select value by ID
+  const sliderIds = [
+    "bpmSlider",
+    "stepsSlider",
+    "atkSlider",
+    "decSlider",
+    "susSlider",
+    "relSlider",
+    "volSlider",
+    "cutoffSlider",
+    "resSlider",
+    "keyFollowSlider",
+    "fatkSlider",
+    "fdecSlider",
+    "fsusSlider",
+    "frelSlider",
+    "famtSlider",
+    "lfoRateSlider",
+    "lfoDepthSlider",
+    "pwSlider",
+    "lfo2RateSlider",
+    "lfo2DepthSlider",
+    "delayFbSlider",
+    "delayWetSlider",
+    "delaySpreadSlider",
+    "delayHiCutSlider",
+  ];
+  const selectIds = [
+    "dirSelect",
+    "stepLenSelect",
+    "waveSelect",
+    "rootSelect",
+    "octaveSelect",
+    "lfoWaveSelect",
+    "lfo2WaveSelect",
+    "delayTimeSelect",
+  ];
+  const state = {
+    sliders: {},
+    selects: {},
+    steps: [],
+    scaleIdx: selectedScaleIdx,
+  };
+  sliderIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) state.sliders[id] = el.value;
+  });
+  selectIds.forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) state.selects[id] = el.value;
+  });
+  // Deep-copy step data
+  state.steps = steps.map((s) => ({ degree: s.degree, rest: s.rest }));
+  return state;
+}
+
+function applyPresetState(state) {
+  if (!state) return;
+  // Restore sliders + fire their oninput handlers
+  Object.entries(state.sliders || {}).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = val;
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    if (window.updateKnobVisual) window.updateKnobVisual(id);
+  });
+  // Restore selects
+  Object.entries(state.selects || {}).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = val;
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  // Restore step data
+  if (Array.isArray(state.steps)) {
+    state.steps.forEach((s, i) => {
+      if (i < steps.length) {
+        steps[i].degree = s.degree;
+        steps[i].rest = s.rest;
+      }
+    });
+    renderStepGrid();
+  }
+  // Restore scale selection
+  if (typeof state.scaleIdx === "number") {
+    selectScale(state.scaleIdx);
+  }
+  // Redraw canvases
+  drawADSRCanvas();
+  drawFilterADSRCanvas();
+}
+
+function loadPresetsFromStorage() {
+  try {
+    return JSON.parse(localStorage.getItem(PRESET_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function savePresetsToStorage(list) {
+  localStorage.setItem(PRESET_KEY, JSON.stringify(list));
+}
+
+function renderPresetList() {
+  const sel = document.getElementById("presetSelect");
+  if (!sel) return;
+  const current = sel.value;
+  const list = loadPresetsFromStorage();
+  sel.innerHTML = '<option value="">— recall —</option>';
+  list.forEach((p) => {
+    const opt = document.createElement("option");
+    opt.value = p.id;
+    opt.textContent = p.name;
+    sel.appendChild(opt);
+  });
+  // Restore selection if still present
+  if (current && list.find((p) => p.id === current)) {
+    sel.value = current;
+  }
+}
+
+function savePreset() {
+  const list = loadPresetsFromStorage();
+  const id = `preset_${Date.now()}`;
+  const name = generatePresetName();
+  list.unshift({ id, name, created: Date.now(), state: getPresetState() });
+  savePresetsToStorage(list);
+  renderPresetList();
+  const sel = document.getElementById("presetSelect");
+  if (sel) sel.value = id;
+  const display = document.getElementById("presetNameDisplay");
+  if (display) display.textContent = name;
+  // Flash the save button
+  const btn = document.querySelector(".preset-save-btn");
+  if (btn) {
+    btn.textContent = "✓ SAVED";
+    setTimeout(() => {
+      btn.textContent = "+ SAVE";
+    }, 1200);
+  }
+}
+
+function loadPreset(id) {
+  if (!id) return;
+  const list = loadPresetsFromStorage();
+  const preset = list.find((p) => p.id === id);
+  if (!preset) return;
+  applyPresetState(preset.state);
+  const display = document.getElementById("presetNameDisplay");
+  if (display) display.textContent = preset.name;
+}
+
+function deleteSelectedPreset() {
+  const sel = document.getElementById("presetSelect");
+  if (!sel || !sel.value) return;
+  const id = sel.value;
+  const list = loadPresetsFromStorage().filter((p) => p.id !== id);
+  savePresetsToStorage(list);
+  renderPresetList();
+  const display = document.getElementById("presetNameDisplay");
+  if (display) display.textContent = "NO PRESET";
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderScaleList();
 selectScale(0); // Default: Pythagorean
@@ -1720,6 +1974,7 @@ updateDelay();
 drawLFOCanvas();
 drawLFO2Canvas();
 drawPPCanvas();
+renderPresetList();
 
 // Auto-resume AudioContext on first interaction
 document.addEventListener(

@@ -75,6 +75,33 @@
           <option value="2">1/2</option>
         </select>
       </div>
+      <div class="divider"></div>
+      <!-- PRESETS -->
+      <div class="preset-group">
+        <span class="knob-label">PRESET</span>
+        <div class="preset-controls">
+          <button class="btn preset-save-btn" onclick="savePreset()">
+            + SAVE
+          </button>
+          <select
+            id="presetSelect"
+            class="preset-select"
+            onchange="loadPreset(this.value)"
+          >
+            <option value="">— recall —</option>
+          </select>
+          <button
+            class="btn preset-del-btn"
+            onclick="deleteSelectedPreset()"
+            title="Delete selected preset"
+          >
+            ✕
+          </button>
+        </div>
+        <span class="preset-name-display" id="presetNameDisplay"
+          >NO PRESET</span
+        >
+      </div>
     </div>
 
     <div class="main">
