@@ -319,59 +319,46 @@
             </div>
           </div>
           <div class="divider"></div>
-          <div class="knob-group">
-            <span class="knob-label">WAVE</span>
-            <select
-              id="waveSelect"
-              onchange="setWaveType(this.value)"
-              style="font-size: 10px"
-            >
-              <option value="sine">SINE</option>
-              <option value="triangle">TRIANGLE</option>
-              <option value="sawtooth">SAW</option>
-              <option value="square">SQUARE</option>
-              <option value="pulse">PULSE/PWM</option>
-            </select>
-          </div>
-          <div class="divider"></div>
-          <div class="root-group">
-            <span class="knob-label">ROOT NOTE</span>
-            <select
-              id="rootSelect"
-              onchange="updateRoot(this.value)"
-              style="font-size: 10px; width: 80px"
-            >
-              <option value="0">C</option>
-              <option value="2">D</option>
-              <option value="4">E</option>
-              <option value="5">F</option>
-              <option value="7">G</option>
-              <option value="9" selected>A</option>
-              <option value="11">B</option>
-            </select>
-          </div>
-          <div class="root-group">
-            <span class="knob-label">OCTAVE</span>
-            <select
-              id="octaveSelect"
-              onchange="updateRoot()"
-              style="font-size: 10px; width: 60px"
-            >
-              <option value="0">0</option>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4" selected>4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-            </select>
-          </div>
-          <div class="root-group">
-            <span class="knob-label">ROOT HZ</span>
-            <span class="knob-val" id="rootHzDisplay" style="font-size: 14px"
-              >440.0</span
-            >
+          <div class="stacked-selects">
+            <div class="select-row">
+              <span class="knob-label">WAVE</span>
+              <select id="waveSelect" onchange="setWaveType(this.value)">
+                <option value="sine">SINE</option>
+                <option value="triangle">TRIANGLE</option>
+                <option value="sawtooth">SAW</option>
+                <option value="square">SQUARE</option>
+                <option value="pulse">PULSE/PWM</option>
+              </select>
+            </div>
+            <div class="select-row">
+              <span class="knob-label">ROOT</span>
+              <select id="rootSelect" onchange="updateRoot(this.value)">
+                <option value="0">C</option>
+                <option value="2">D</option>
+                <option value="4">E</option>
+                <option value="5">F</option>
+                <option value="7">G</option>
+                <option value="9" selected>A</option>
+                <option value="11">B</option>
+              </select>
+            </div>
+            <div class="select-row">
+              <span class="knob-label">OCT</span>
+              <select id="octaveSelect" onchange="updateRoot()">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+              </select>
+            </div>
+            <div class="select-row">
+              <span class="knob-label">HZ</span>
+              <span class="knob-val" id="rootHzDisplay" style="font-size: 11px">440.0</span>
+            </div>
           </div>
         </div>
 
