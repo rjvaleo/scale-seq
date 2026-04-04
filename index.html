@@ -546,281 +546,328 @@
           </div>
         </div>
 
-        <!-- LFO ROW 1 (LFO 1 + LFO 2) -->
-        <div class="synth-row">
-          <div class="lfo-label-col">
-            <span class="row-label" style="color: #ff6b35">LFO 1</span>
-            <canvas
-              id="lfo1Canvas"
-              width="80"
-              height="44"
-              style="background: #0a0c0e; border: 1px solid #1e2830"
-            ></canvas>
-          </div>
-          <div class="stacked-selects">
-            <div class="select-row">
-              <span class="knob-label">SHAPE</span>
-              <select id="lfo1WaveSelect" onchange="updateLFO(0)" style="font-size: 10px">
-                <option value="sine">SINE</option>
-                <option value="triangle">TRI</option>
-                <option value="sawtooth">SAW</option>
-              </select>
+        <!-- LFO ROW (all 4 LFOs) -->
+        <div class="synth-row" style="gap: 12px">
+          <div class="lfo-unit">
+            <div class="lfo-label-col">
+              <span class="row-label" style="color: #ff6b35">LFO 1</span>
+              <canvas
+                id="lfo1Canvas"
+                width="40"
+                height="44"
+                style="background: #0a0c0e; border: 1px solid #1e2830"
+              ></canvas>
             </div>
-            <div class="select-row">
-              <span class="knob-label">TARGET</span>
-              <select id="lfo1TargetSelect" onchange="changeLFOTarget(0, this.value)" style="font-size: 10px">
-                <option value="">—</option>
-                <option value="filter" selected>FILTER</option>
-                <option value="resonance">RESO</option>
-                <option value="volume">VOLUME</option>
-                <option value="pw">PULSE W</option>
-                <option value="delay-wet">DLY WET</option>
-              </select>
+            <div class="stacked-selects">
+              <div class="select-row">
+                <span class="knob-label">SHAPE</span>
+                <select
+                  id="lfo1WaveSelect"
+                  onchange="updateLFO(0)"
+                  style="font-size: 10px"
+                >
+                  <option value="sine">SINE</option>
+                  <option value="triangle">TRI</option>
+                  <option value="sawtooth">SAW</option>
+                </select>
+              </div>
+              <div class="select-row">
+                <span class="knob-label">TARGET</span>
+                <select
+                  id="lfo1TargetSelect"
+                  onchange="changeLFOTarget(0, this.value)"
+                  style="font-size: 10px"
+                >
+                  <option value="">—</option>
+                  <option value="filter" selected>FILTER</option>
+                  <option value="resonance">RESO</option>
+                  <option value="volume">VOLUME</option>
+                  <option value="pw">PULSE W</option>
+                  <option value="delay-wet">DLY WET</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">RATE</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'lfo1RateSlider')"
-              ontouchstart="knobTouchStart(event,'lfo1RateSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="50"
-              id="lfo1RateSlider"
-              oninput="updateLFO(0)"
-            />
-            <span class="knob-val" id="lfo1RateVal">1.0Hz</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">DEPTH</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'lfo1DepthSlider')"
-              ontouchstart="knobTouchStart(event,'lfo1DepthSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="20"
-              id="lfo1DepthSlider"
-              oninput="updateLFO(0)"
-            />
-            <span class="knob-val" id="lfo1DepthVal">20%</span>
+            <div class="lfo-rd-col">
+              <div class="knob-group">
+                <span class="knob-label">RATE</span>
+                <div
+                  class="knob"
+                  onmousedown="knobDown(event, 'lfo1RateSlider')"
+                  ontouchstart="knobTouchStart(event,'lfo1RateSlider')"
+                ></div>
+                <input
+                  type="range"
+                  class="knob-hidden"
+                  min="0"
+                  max="100"
+                  value="50"
+                  id="lfo1RateSlider"
+                  oninput="updateLFO(0)"
+                />
+                <span class="knob-val" id="lfo1RateVal">1.0Hz</span>
+              </div>
+              <div class="knob-group">
+                <span class="knob-label">DEPTH</span>
+                <div
+                  class="knob"
+                  onmousedown="knobDown(event, 'lfo1DepthSlider')"
+                  ontouchstart="knobTouchStart(event,'lfo1DepthSlider')"
+                ></div>
+                <input
+                  type="range"
+                  class="knob-hidden"
+                  min="0"
+                  max="100"
+                  value="20"
+                  id="lfo1DepthSlider"
+                  oninput="updateLFO(0)"
+                />
+                <span class="knob-val" id="lfo1DepthVal">20%</span>
+              </div>
+            </div>
           </div>
 
           <div class="divider"></div>
 
-          <div class="lfo-label-col">
-            <span class="row-label" style="color: #00e5ff">LFO 2</span>
-            <canvas
-              id="lfo2Canvas"
-              width="80"
-              height="44"
-              style="background: #0a0c0e; border: 1px solid #1e2830"
-            ></canvas>
-          </div>
-          <div class="stacked-selects">
-            <div class="select-row">
-              <span class="knob-label">SHAPE</span>
-              <select id="lfo2WaveSelect" onchange="updateLFO(1)" style="font-size: 10px">
-                <option value="sine">SINE</option>
-                <option value="triangle">TRI</option>
-                <option value="sawtooth">SAW</option>
-              </select>
+          <div class="lfo-unit">
+            <div class="lfo-label-col">
+              <span class="row-label" style="color: #00e5ff">LFO 2</span>
+              <canvas
+                id="lfo2Canvas"
+                width="40"
+                height="44"
+                style="background: #0a0c0e; border: 1px solid #1e2830"
+              ></canvas>
             </div>
-            <div class="select-row">
-              <span class="knob-label">TARGET</span>
-              <select id="lfo2TargetSelect" onchange="changeLFOTarget(1, this.value)" style="font-size: 10px">
-                <option value="">—</option>
-                <option value="filter">FILTER</option>
-                <option value="resonance">RESO</option>
-                <option value="volume">VOLUME</option>
-                <option value="pw" selected>PULSE W</option>
-                <option value="delay-wet">DLY WET</option>
-              </select>
+            <div class="stacked-selects">
+              <div class="select-row">
+                <span class="knob-label">SHAPE</span>
+                <select
+                  id="lfo2WaveSelect"
+                  onchange="updateLFO(1)"
+                  style="font-size: 10px"
+                >
+                  <option value="sine">SINE</option>
+                  <option value="triangle">TRI</option>
+                  <option value="sawtooth">SAW</option>
+                </select>
+              </div>
+              <div class="select-row">
+                <span class="knob-label">TARGET</span>
+                <select
+                  id="lfo2TargetSelect"
+                  onchange="changeLFOTarget(1, this.value)"
+                  style="font-size: 10px"
+                >
+                  <option value="">—</option>
+                  <option value="filter">FILTER</option>
+                  <option value="resonance">RESO</option>
+                  <option value="volume">VOLUME</option>
+                  <option value="pw" selected>PULSE W</option>
+                  <option value="delay-wet">DLY WET</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">RATE</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'lfo2RateSlider')"
-              ontouchstart="knobTouchStart(event,'lfo2RateSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="40"
-              id="lfo2RateSlider"
-              oninput="updateLFO(1)"
-            />
-            <span class="knob-val" id="lfo2RateVal">0.55Hz</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">DEPTH</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'lfo2DepthSlider')"
-              ontouchstart="knobTouchStart(event,'lfo2DepthSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="25"
-              id="lfo2DepthSlider"
-              oninput="updateLFO(1)"
-            />
-            <span class="knob-val" id="lfo2DepthVal">25%</span>
-          </div>
-        </div>
-
-        <!-- LFO ROW 2 (LFO 3 + LFO 4) -->
-        <div class="synth-row">
-          <div class="lfo-label-col">
-            <span class="row-label" style="color: #a0ff60">LFO 3</span>
-            <canvas
-              id="lfo3Canvas"
-              width="80"
-              height="44"
-              style="background: #0a0c0e; border: 1px solid #1e2830"
-            ></canvas>
-          </div>
-          <div class="stacked-selects">
-            <div class="select-row">
-              <span class="knob-label">SHAPE</span>
-              <select id="lfo3WaveSelect" onchange="updateLFO(2)" style="font-size: 10px">
-                <option value="sine">SINE</option>
-                <option value="triangle">TRI</option>
-                <option value="sawtooth">SAW</option>
-              </select>
+            <div class="lfo-rd-col">
+              <div class="knob-group">
+                <span class="knob-label">RATE</span>
+                <div
+                  class="knob"
+                  onmousedown="knobDown(event, 'lfo2RateSlider')"
+                  ontouchstart="knobTouchStart(event,'lfo2RateSlider')"
+                ></div>
+                <input
+                  type="range"
+                  class="knob-hidden"
+                  min="0"
+                  max="100"
+                  value="40"
+                  id="lfo2RateSlider"
+                  oninput="updateLFO(1)"
+                />
+                <span class="knob-val" id="lfo2RateVal">0.55Hz</span>
+              </div>
+              <div class="knob-group">
+                <span class="knob-label">DEPTH</span>
+                <div
+                  class="knob"
+                  onmousedown="knobDown(event, 'lfo2DepthSlider')"
+                  ontouchstart="knobTouchStart(event,'lfo2DepthSlider')"
+                ></div>
+                <input
+                  type="range"
+                  class="knob-hidden"
+                  min="0"
+                  max="100"
+                  value="25"
+                  id="lfo2DepthSlider"
+                  oninput="updateLFO(1)"
+                />
+                <span class="knob-val" id="lfo2DepthVal">25%</span>
+              </div>
             </div>
-            <div class="select-row">
-              <span class="knob-label">TARGET</span>
-              <select id="lfo3TargetSelect" onchange="changeLFOTarget(2, this.value)" style="font-size: 10px">
-                <option value="" selected>—</option>
-                <option value="filter">FILTER</option>
-                <option value="resonance">RESO</option>
-                <option value="volume">VOLUME</option>
-                <option value="pw">PULSE W</option>
-                <option value="delay-wet">DLY WET</option>
-              </select>
-            </div>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">RATE</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'lfo3RateSlider')"
-              ontouchstart="knobTouchStart(event,'lfo3RateSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="40"
-              id="lfo3RateSlider"
-              oninput="updateLFO(2)"
-            />
-            <span class="knob-val" id="lfo3RateVal">0.55Hz</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">DEPTH</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'lfo3DepthSlider')"
-              ontouchstart="knobTouchStart(event,'lfo3DepthSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="0"
-              id="lfo3DepthSlider"
-              oninput="updateLFO(2)"
-            />
-            <span class="knob-val" id="lfo3DepthVal">0%</span>
           </div>
 
           <div class="divider"></div>
 
-          <div class="lfo-label-col">
-            <span class="row-label" style="color: #ff60b8">LFO 4</span>
-            <canvas
-              id="lfo4Canvas"
-              width="80"
-              height="44"
-              style="background: #0a0c0e; border: 1px solid #1e2830"
-            ></canvas>
-          </div>
-          <div class="stacked-selects">
-            <div class="select-row">
-              <span class="knob-label">SHAPE</span>
-              <select id="lfo4WaveSelect" onchange="updateLFO(3)" style="font-size: 10px">
-                <option value="sine">SINE</option>
-                <option value="triangle">TRI</option>
-                <option value="sawtooth">SAW</option>
-              </select>
+          <div class="lfo-unit">
+            <div class="lfo-label-col">
+              <span class="row-label" style="color: #a0ff60">LFO 3</span>
+              <canvas
+                id="lfo3Canvas"
+                width="40"
+                height="44"
+                style="background: #0a0c0e; border: 1px solid #1e2830"
+              ></canvas>
             </div>
-            <div class="select-row">
-              <span class="knob-label">TARGET</span>
-              <select id="lfo4TargetSelect" onchange="changeLFOTarget(3, this.value)" style="font-size: 10px">
-                <option value="" selected>—</option>
-                <option value="filter">FILTER</option>
-                <option value="resonance">RESO</option>
-                <option value="volume">VOLUME</option>
-                <option value="pw">PULSE W</option>
-                <option value="delay-wet">DLY WET</option>
-              </select>
+            <div class="stacked-selects">
+              <div class="select-row">
+                <span class="knob-label">SHAPE</span>
+                <select
+                  id="lfo3WaveSelect"
+                  onchange="updateLFO(2)"
+                  style="font-size: 10px"
+                >
+                  <option value="sine">SINE</option>
+                  <option value="triangle">TRI</option>
+                  <option value="sawtooth">SAW</option>
+                </select>
+              </div>
+              <div class="select-row">
+                <span class="knob-label">TARGET</span>
+                <select
+                  id="lfo3TargetSelect"
+                  onchange="changeLFOTarget(2, this.value)"
+                  style="font-size: 10px"
+                >
+                  <option value="" selected>—</option>
+                  <option value="filter">FILTER</option>
+                  <option value="resonance">RESO</option>
+                  <option value="volume">VOLUME</option>
+                  <option value="pw">PULSE W</option>
+                  <option value="delay-wet">DLY WET</option>
+                </select>
+              </div>
+            </div>
+            <div class="lfo-rd-col">
+              <div class="knob-group">
+                <span class="knob-label">RATE</span>
+                <div
+                  class="knob"
+                  onmousedown="knobDown(event, 'lfo3RateSlider')"
+                  ontouchstart="knobTouchStart(event,'lfo3RateSlider')"
+                ></div>
+                <input
+                  type="range"
+                  class="knob-hidden"
+                  min="0"
+                  max="100"
+                  value="40"
+                  id="lfo3RateSlider"
+                  oninput="updateLFO(2)"
+                />
+                <span class="knob-val" id="lfo3RateVal">0.55Hz</span>
+              </div>
+              <div class="knob-group">
+                <span class="knob-label">DEPTH</span>
+                <div
+                  class="knob"
+                  onmousedown="knobDown(event, 'lfo3DepthSlider')"
+                  ontouchstart="knobTouchStart(event,'lfo3DepthSlider')"
+                ></div>
+                <input
+                  type="range"
+                  class="knob-hidden"
+                  min="0"
+                  max="100"
+                  value="0"
+                  id="lfo3DepthSlider"
+                  oninput="updateLFO(2)"
+                />
+                <span class="knob-val" id="lfo3DepthVal">0%</span>
+              </div>
             </div>
           </div>
-          <div class="knob-group">
-            <span class="knob-label">RATE</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'lfo4RateSlider')"
-              ontouchstart="knobTouchStart(event,'lfo4RateSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="40"
-              id="lfo4RateSlider"
-              oninput="updateLFO(3)"
-            />
-            <span class="knob-val" id="lfo4RateVal">0.55Hz</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">DEPTH</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'lfo4DepthSlider')"
-              ontouchstart="knobTouchStart(event,'lfo4DepthSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="0"
-              id="lfo4DepthSlider"
-              oninput="updateLFO(3)"
-            />
-            <span class="knob-val" id="lfo4DepthVal">0%</span>
+
+          <div class="divider"></div>
+
+          <div class="lfo-unit">
+            <div class="lfo-label-col">
+              <span class="row-label" style="color: #ff60b8">LFO 4</span>
+              <canvas
+                id="lfo4Canvas"
+                width="40"
+                height="44"
+                style="background: #0a0c0e; border: 1px solid #1e2830"
+              ></canvas>
+            </div>
+            <div class="stacked-selects">
+              <div class="select-row">
+                <span class="knob-label">SHAPE</span>
+                <select
+                  id="lfo4WaveSelect"
+                  onchange="updateLFO(3)"
+                  style="font-size: 10px"
+                >
+                  <option value="sine">SINE</option>
+                  <option value="triangle">TRI</option>
+                  <option value="sawtooth">SAW</option>
+                </select>
+              </div>
+              <div class="select-row">
+                <span class="knob-label">TARGET</span>
+                <select
+                  id="lfo4TargetSelect"
+                  onchange="changeLFOTarget(3, this.value)"
+                  style="font-size: 10px"
+                >
+                  <option value="" selected>—</option>
+                  <option value="filter">FILTER</option>
+                  <option value="resonance">RESO</option>
+                  <option value="volume">VOLUME</option>
+                  <option value="pw">PULSE W</option>
+                  <option value="delay-wet">DLY WET</option>
+                </select>
+              </div>
+            </div>
+            <div class="lfo-rd-col">
+              <div class="knob-group">
+                <span class="knob-label">RATE</span>
+                <div
+                  class="knob"
+                  onmousedown="knobDown(event, 'lfo4RateSlider')"
+                  ontouchstart="knobTouchStart(event,'lfo4RateSlider')"
+                ></div>
+                <input
+                  type="range"
+                  class="knob-hidden"
+                  min="0"
+                  max="100"
+                  value="40"
+                  id="lfo4RateSlider"
+                  oninput="updateLFO(3)"
+                />
+                <span class="knob-val" id="lfo4RateVal">0.55Hz</span>
+              </div>
+              <div class="knob-group">
+                <span class="knob-label">DEPTH</span>
+                <div
+                  class="knob"
+                  onmousedown="knobDown(event, 'lfo4DepthSlider')"
+                  ontouchstart="knobTouchStart(event,'lfo4DepthSlider')"
+                ></div>
+                <input
+                  type="range"
+                  class="knob-hidden"
+                  min="0"
+                  max="100"
+                  value="0"
+                  id="lfo4DepthSlider"
+                  oninput="updateLFO(3)"
+                />
+                <span class="knob-val" id="lfo4DepthVal">0%</span>
+              </div>
+            </div>
           </div>
         </div>
 

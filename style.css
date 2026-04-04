@@ -280,6 +280,17 @@ input[type="range"]::-webkit-slider-thumb {
   align-items: flex-start;
   gap: 5px;
 }
+.lfo-unit {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+.lfo-rd-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 select {
   background: var(--bg3);
   border: 1px solid var(--border);
