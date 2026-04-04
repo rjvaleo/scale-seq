@@ -1004,7 +1004,14 @@ function updateFilter() {
   filterCutoff = 20 * Math.pow(1000, cv / 100);
   filterRes = 0.1 + (rv / 100) * 19.9;
   if (filterNode) {
-    filterNode.frequency.value = filterCutoff;
+    const now = audioCtx.currentTime;
+    // cancelAndHoldAtTime captures the current mid-ramp value rather than
+    // snapping to the intrinsic value, preventing an audible jump when the
+    // knob is touched during a filter ADSR sweep.
+    filterNode.frequency.cancelAndHoldAtTime(now);
+    // setTargetAtTime smoothly eases to the new cutoff over ~15ms so that
+    // rapid knob movement doesn't produce clicks.
+    filterNode.frequency.setTargetAtTime(filterCutoff, now, 0.015);
     filterNode.Q.value = filterRes;
     if (lfoGain) lfoGain.gain.value = lfoDepth * filterCutoff;
   }
@@ -1087,8 +1094,11 @@ function updateDelay() {
   // Log scale hi-cut: 200Hz → 20kHz
   delayHiCutFreq = 200 * Math.pow(100, hcV / 100);
   const dTime = (60 / bpm) * delaySubdiv;
-  if (delayL) delayL.delayTime.value = dTime;
-  if (delayR) delayR.delayTime.value = dTime;
+  // Use setTargetAtTime to smoothly transition delay time and avoid pitch-sweep clicks
+  if (delayL)
+    delayL.delayTime.setTargetAtTime(dTime, audioCtx.currentTime, 0.008);
+  if (delayR)
+    delayR.delayTime.setTargetAtTime(dTime, audioCtx.currentTime, 0.008);
   if (delayFbGainLR) delayFbGainLR.gain.value = delayFeedback;
   if (delayFbGainRL) delayFbGainRL.gain.value = delayFeedback;
   if (delayPanL) delayPanL.pan.value = -delaySpread;
