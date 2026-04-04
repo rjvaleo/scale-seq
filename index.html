@@ -362,6 +362,24 @@
                 >440.0</span
               >
             </div>
+            <div class="select-row" id="pwGroup" style="opacity: 0.35">
+              <span class="knob-label">PW</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'pwSlider')"
+                ontouchstart="knobTouchStart(event,'pwSlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="5"
+                max="95"
+                value="50"
+                id="pwSlider"
+                oninput="updatePW(this.value)"
+              />
+              <span class="knob-val" id="pwVal">50%</span>
+            </div>
           </div>
           <div class="divider"></div>
           <span class="row-label" style="color: #ff6b35">FILTER</span>
@@ -539,20 +557,26 @@
               style="background: #0a0c0e; border: 1px solid #1e2830"
             ></canvas>
           </div>
-          <div class="knob-group">
-            <span class="knob-label">TARGET</span>
-            <select
-              id="lfo1TargetSelect"
-              onchange="changeLFOTarget(0, this.value)"
-              style="font-size: 10px"
-            >
-              <option value="">—</option>
-              <option value="filter" selected>FILTER</option>
-              <option value="resonance">RESO</option>
-              <option value="volume">VOLUME</option>
-              <option value="pw">PULSE W</option>
-              <option value="delay-wet">DLY WET</option>
-            </select>
+          <div class="stacked-selects">
+            <div class="select-row">
+              <span class="knob-label">SHAPE</span>
+              <select id="lfo1WaveSelect" onchange="updateLFO(0)" style="font-size: 10px">
+                <option value="sine">SINE</option>
+                <option value="triangle">TRI</option>
+                <option value="sawtooth">SAW</option>
+              </select>
+            </div>
+            <div class="select-row">
+              <span class="knob-label">TARGET</span>
+              <select id="lfo1TargetSelect" onchange="changeLFOTarget(0, this.value)" style="font-size: 10px">
+                <option value="">—</option>
+                <option value="filter" selected>FILTER</option>
+                <option value="resonance">RESO</option>
+                <option value="volume">VOLUME</option>
+                <option value="pw">PULSE W</option>
+                <option value="delay-wet">DLY WET</option>
+              </select>
+            </div>
           </div>
           <div class="knob-group">
             <span class="knob-label">RATE</span>
@@ -590,18 +614,6 @@
             />
             <span class="knob-val" id="lfo1DepthVal">20%</span>
           </div>
-          <div class="knob-group">
-            <span class="knob-label">SHAPE</span>
-            <select
-              id="lfo1WaveSelect"
-              onchange="updateLFO(0)"
-              style="font-size: 10px"
-            >
-              <option value="sine">SINE</option>
-              <option value="triangle">TRI</option>
-              <option value="sawtooth">SAW</option>
-            </select>
-          </div>
 
           <div class="divider"></div>
 
@@ -614,20 +626,26 @@
               style="background: #0a0c0e; border: 1px solid #1e2830"
             ></canvas>
           </div>
-          <div class="knob-group">
-            <span class="knob-label">TARGET</span>
-            <select
-              id="lfo2TargetSelect"
-              onchange="changeLFOTarget(1, this.value)"
-              style="font-size: 10px"
-            >
-              <option value="">—</option>
-              <option value="filter">FILTER</option>
-              <option value="resonance">RESO</option>
-              <option value="volume">VOLUME</option>
-              <option value="pw" selected>PULSE W</option>
-              <option value="delay-wet">DLY WET</option>
-            </select>
+          <div class="stacked-selects">
+            <div class="select-row">
+              <span class="knob-label">SHAPE</span>
+              <select id="lfo2WaveSelect" onchange="updateLFO(1)" style="font-size: 10px">
+                <option value="sine">SINE</option>
+                <option value="triangle">TRI</option>
+                <option value="sawtooth">SAW</option>
+              </select>
+            </div>
+            <div class="select-row">
+              <span class="knob-label">TARGET</span>
+              <select id="lfo2TargetSelect" onchange="changeLFOTarget(1, this.value)" style="font-size: 10px">
+                <option value="">—</option>
+                <option value="filter">FILTER</option>
+                <option value="resonance">RESO</option>
+                <option value="volume">VOLUME</option>
+                <option value="pw" selected>PULSE W</option>
+                <option value="delay-wet">DLY WET</option>
+              </select>
+            </div>
           </div>
           <div class="knob-group">
             <span class="knob-label">RATE</span>
@@ -665,36 +683,6 @@
             />
             <span class="knob-val" id="lfo2DepthVal">25%</span>
           </div>
-          <div class="knob-group">
-            <span class="knob-label">SHAPE</span>
-            <select
-              id="lfo2WaveSelect"
-              onchange="updateLFO(1)"
-              style="font-size: 10px"
-            >
-              <option value="sine">SINE</option>
-              <option value="triangle">TRI</option>
-              <option value="sawtooth">SAW</option>
-            </select>
-          </div>
-          <div class="knob-group" id="pwGroup" style="opacity: 0.35">
-            <span class="knob-label">BASE PW</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'pwSlider')"
-              ontouchstart="knobTouchStart(event,'pwSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="5"
-              max="95"
-              value="50"
-              id="pwSlider"
-              oninput="updatePW(this.value)"
-            />
-            <span class="knob-val" id="pwVal">50%</span>
-          </div>
         </div>
 
         <!-- LFO ROW 2 (LFO 3 + LFO 4) -->
@@ -708,20 +696,26 @@
               style="background: #0a0c0e; border: 1px solid #1e2830"
             ></canvas>
           </div>
-          <div class="knob-group">
-            <span class="knob-label">TARGET</span>
-            <select
-              id="lfo3TargetSelect"
-              onchange="changeLFOTarget(2, this.value)"
-              style="font-size: 10px"
-            >
-              <option value="" selected>—</option>
-              <option value="filter">FILTER</option>
-              <option value="resonance">RESO</option>
-              <option value="volume">VOLUME</option>
-              <option value="pw">PULSE W</option>
-              <option value="delay-wet">DLY WET</option>
-            </select>
+          <div class="stacked-selects">
+            <div class="select-row">
+              <span class="knob-label">SHAPE</span>
+              <select id="lfo3WaveSelect" onchange="updateLFO(2)" style="font-size: 10px">
+                <option value="sine">SINE</option>
+                <option value="triangle">TRI</option>
+                <option value="sawtooth">SAW</option>
+              </select>
+            </div>
+            <div class="select-row">
+              <span class="knob-label">TARGET</span>
+              <select id="lfo3TargetSelect" onchange="changeLFOTarget(2, this.value)" style="font-size: 10px">
+                <option value="" selected>—</option>
+                <option value="filter">FILTER</option>
+                <option value="resonance">RESO</option>
+                <option value="volume">VOLUME</option>
+                <option value="pw">PULSE W</option>
+                <option value="delay-wet">DLY WET</option>
+              </select>
+            </div>
           </div>
           <div class="knob-group">
             <span class="knob-label">RATE</span>
@@ -759,18 +753,6 @@
             />
             <span class="knob-val" id="lfo3DepthVal">0%</span>
           </div>
-          <div class="knob-group">
-            <span class="knob-label">SHAPE</span>
-            <select
-              id="lfo3WaveSelect"
-              onchange="updateLFO(2)"
-              style="font-size: 10px"
-            >
-              <option value="sine">SINE</option>
-              <option value="triangle">TRI</option>
-              <option value="sawtooth">SAW</option>
-            </select>
-          </div>
 
           <div class="divider"></div>
 
@@ -783,20 +765,26 @@
               style="background: #0a0c0e; border: 1px solid #1e2830"
             ></canvas>
           </div>
-          <div class="knob-group">
-            <span class="knob-label">TARGET</span>
-            <select
-              id="lfo4TargetSelect"
-              onchange="changeLFOTarget(3, this.value)"
-              style="font-size: 10px"
-            >
-              <option value="" selected>—</option>
-              <option value="filter">FILTER</option>
-              <option value="resonance">RESO</option>
-              <option value="volume">VOLUME</option>
-              <option value="pw">PULSE W</option>
-              <option value="delay-wet">DLY WET</option>
-            </select>
+          <div class="stacked-selects">
+            <div class="select-row">
+              <span class="knob-label">SHAPE</span>
+              <select id="lfo4WaveSelect" onchange="updateLFO(3)" style="font-size: 10px">
+                <option value="sine">SINE</option>
+                <option value="triangle">TRI</option>
+                <option value="sawtooth">SAW</option>
+              </select>
+            </div>
+            <div class="select-row">
+              <span class="knob-label">TARGET</span>
+              <select id="lfo4TargetSelect" onchange="changeLFOTarget(3, this.value)" style="font-size: 10px">
+                <option value="" selected>—</option>
+                <option value="filter">FILTER</option>
+                <option value="resonance">RESO</option>
+                <option value="volume">VOLUME</option>
+                <option value="pw">PULSE W</option>
+                <option value="delay-wet">DLY WET</option>
+              </select>
+            </div>
           </div>
           <div class="knob-group">
             <span class="knob-label">RATE</span>
@@ -833,18 +821,6 @@
               oninput="updateLFO(3)"
             />
             <span class="knob-val" id="lfo4DepthVal">0%</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">SHAPE</span>
-            <select
-              id="lfo4WaveSelect"
-              onchange="updateLFO(3)"
-              style="font-size: 10px"
-            >
-              <option value="sine">SINE</option>
-              <option value="triangle">TRI</option>
-              <option value="sawtooth">SAW</option>
-            </select>
           </div>
         </div>
 
