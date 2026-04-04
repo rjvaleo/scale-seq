@@ -18,37 +18,39 @@
       <button class="btn" id="playBtn" onclick="togglePlay()">▶ PLAY</button>
       <button class="btn stop-btn" onclick="stopSeq()">■ STOP</button>
       <div class="divider"></div>
-      <div class="bpm-group">
-        <span class="label">BPM</span>
+      <div class="knob-group">
+        <span class="knob-label">BPM</span>
+        <div class="knob" onmousedown="knobDown(event,'bpmSlider')" ontouchstart="knobTouchStart(event,'bpmSlider')"></div>
         <input
           type="range"
-          class="knob-slider"
+          class="knob-hidden"
           id="bpmSlider"
           min="40"
           max="240"
           value="120"
           oninput="updateBPM(this.value)"
         />
-        <span class="val-display" id="bpmVal">120</span>
+        <span class="knob-val" id="bpmVal">120</span>
       </div>
-      <div class="bpm-group">
-        <span class="label">STEPS</span>
+      <div class="knob-group">
+        <span class="knob-label">STEPS</span>
+        <div class="knob" onmousedown="knobDown(event,'stepsSlider')" ontouchstart="knobTouchStart(event,'stepsSlider')"></div>
         <input
           type="range"
-          class="knob-slider"
+          class="knob-hidden"
           id="stepsSlider"
           min="1"
           max="16"
           value="8"
           oninput="updateSteps(this.value)"
         />
-        <span class="val-display" id="stepsVal">8</span>
+        <span class="knob-val" id="stepsVal">8</span>
       </div>
       <div class="divider"></div>
       <div class="pos-display" id="posDisplay">01 · 01</div>
       <div class="divider"></div>
-      <div class="bpm-group">
-        <span class="label">DIRECTION</span>
+      <div class="knob-group">
+        <span class="knob-label">DIRECTION</span>
         <select id="dirSelect" onchange="direction = this.value">
           <option value="fwd">FORWARD</option>
           <option value="rev">REVERSE</option>
@@ -56,8 +58,8 @@
           <option value="rand">RANDOM</option>
         </select>
       </div>
-      <div class="bpm-group">
-        <span class="label">STEP LEN</span>
+      <div class="knob-group">
+        <span class="knob-label">STEP LEN</span>
         <select id="stepLenSelect" onchange="updateStepLen(this.value)">
           <option value="0.25">1/16</option>
           <option value="0.5" selected>1/8</option>
@@ -90,6 +92,8 @@
                 background: #0a0c0e;
                 border: 1px solid #1e2830;
                 display: block;
+                width: 220px;
+                height: 52px;
                 margin-bottom: 6px;
               "
             ></canvas>
@@ -275,9 +279,10 @@
           <span class="row-label" style="color: #ff6b35">FILTER</span>
           <div class="knob-group">
             <span class="knob-label">CUTOFF</span>
+            <div class="knob" onmousedown="knobDown(event,'cutoffSlider')" ontouchstart="knobTouchStart(event,'cutoffSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="67"
@@ -288,9 +293,10 @@
           </div>
           <div class="knob-group">
             <span class="knob-label">RESO</span>
+            <div class="knob" onmousedown="knobDown(event,'resSlider')" ontouchstart="knobTouchStart(event,'resSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="10"
@@ -301,9 +307,10 @@
           </div>
           <div class="knob-group">
             <span class="knob-label">KEY FOLLOW</span>
+            <div class="knob" onmousedown="knobDown(event,'keyFollowSlider')" ontouchstart="knobTouchStart(event,'keyFollowSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="0"
@@ -323,15 +330,18 @@
                 background: #0a0c0e;
                 border: 1px solid #2a1a0a;
                 display: block;
+                width: 180px;
+                height: 44px;
                 margin-bottom: 4px;
               "
             ></canvas>
             <div class="adsr-knobs">
               <div class="knob-group">
                 <span class="knob-label" style="color: #ff6b35">F·ATK</span>
+                <div class="knob" onmousedown="knobDown(event,'fatkSlider')" ontouchstart="knobTouchStart(event,'fatkSlider')"></div>
                 <input
                   type="range"
-                  class="knob-slider"
+                  class="knob-hidden"
                   min="1"
                   max="500"
                   value="10"
@@ -342,9 +352,10 @@
               </div>
               <div class="knob-group">
                 <span class="knob-label" style="color: #ff6b35">F·DEC</span>
+                <div class="knob" onmousedown="knobDown(event,'fdecSlider')" ontouchstart="knobTouchStart(event,'fdecSlider')"></div>
                 <input
                   type="range"
-                  class="knob-slider"
+                  class="knob-hidden"
                   min="1"
                   max="500"
                   value="150"
@@ -355,9 +366,10 @@
               </div>
               <div class="knob-group">
                 <span class="knob-label" style="color: #ff6b35">F·SUS</span>
+                <div class="knob" onmousedown="knobDown(event,'fsusSlider')" ontouchstart="knobTouchStart(event,'fsusSlider')"></div>
                 <input
                   type="range"
-                  class="knob-slider"
+                  class="knob-hidden"
                   min="0"
                   max="100"
                   value="30"
@@ -368,9 +380,10 @@
               </div>
               <div class="knob-group">
                 <span class="knob-label" style="color: #ff6b35">F·REL</span>
+                <div class="knob" onmousedown="knobDown(event,'frelSlider')" ontouchstart="knobTouchStart(event,'frelSlider')"></div>
                 <input
                   type="range"
-                  class="knob-slider"
+                  class="knob-hidden"
                   min="1"
                   max="2000"
                   value="300"
@@ -381,9 +394,10 @@
               </div>
               <div class="knob-group">
                 <span class="knob-label" style="color: #ff6b35">F·AMT</span>
+                <div class="knob" onmousedown="knobDown(event,'famtSlider')" ontouchstart="knobTouchStart(event,'famtSlider')"></div>
                 <input
                   type="range"
-                  class="knob-slider"
+                  class="knob-hidden"
                   min="-100"
                   max="100"
                   value="50"
@@ -401,9 +415,10 @@
           <span class="row-label" style="color: #ff6b35">LFO 1 · FILTER</span>
           <div class="knob-group">
             <span class="knob-label">RATE</span>
+            <div class="knob" onmousedown="knobDown(event,'lfoRateSlider')" ontouchstart="knobTouchStart(event,'lfoRateSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="50"
@@ -414,9 +429,10 @@
           </div>
           <div class="knob-group">
             <span class="knob-label">DEPTH</span>
+            <div class="knob" onmousedown="knobDown(event,'lfoDepthSlider')" ontouchstart="knobTouchStart(event,'lfoDepthSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="20"
@@ -450,9 +466,10 @@
           <span class="row-label" style="color: #00e5ff">LFO 2 · PWM</span>
           <div class="knob-group" id="pwGroup" style="opacity: 0.35">
             <span class="knob-label">BASE PW</span>
+            <div class="knob" onmousedown="knobDown(event,'pwSlider')" ontouchstart="knobTouchStart(event,'pwSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="5"
               max="95"
               value="50"
@@ -463,9 +480,10 @@
           </div>
           <div class="knob-group" id="pwm2Group" style="opacity: 0.35">
             <span class="knob-label">RATE</span>
+            <div class="knob" onmousedown="knobDown(event,'lfo2RateSlider')" ontouchstart="knobTouchStart(event,'lfo2RateSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="40"
@@ -476,9 +494,10 @@
           </div>
           <div class="knob-group" id="pwm2DepthGroup" style="opacity: 0.35">
             <span class="knob-label">DEPTH</span>
+            <div class="knob" onmousedown="knobDown(event,'lfo2DepthSlider')" ontouchstart="knobTouchStart(event,'lfo2DepthSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="25"
@@ -542,9 +561,10 @@
           </div>
           <div class="knob-group">
             <span class="knob-label">FEEDBACK</span>
+            <div class="knob" onmousedown="knobDown(event,'delayFbSlider')" ontouchstart="knobTouchStart(event,'delayFbSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="95"
               value="35"
@@ -555,9 +575,10 @@
           </div>
           <div class="knob-group">
             <span class="knob-label">WET</span>
+            <div class="knob" onmousedown="knobDown(event,'delayWetSlider')" ontouchstart="knobTouchStart(event,'delayWetSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="25"
@@ -568,9 +589,10 @@
           </div>
           <div class="knob-group">
             <span class="knob-label">SPREAD</span>
+            <div class="knob" onmousedown="knobDown(event,'delaySpreadSlider')" ontouchstart="knobTouchStart(event,'delaySpreadSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="100"
@@ -581,9 +603,10 @@
           </div>
           <div class="knob-group">
             <span class="knob-label">HI CUT</span>
+            <div class="knob" onmousedown="knobDown(event,'delayHiCutSlider')" ontouchstart="knobTouchStart(event,'delayHiCutSlider')"></div>
             <input
               type="range"
-              class="knob-slider"
+              class="knob-hidden"
               min="0"
               max="100"
               value="75"
