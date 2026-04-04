@@ -289,7 +289,30 @@ input[type="range"]::-webkit-slider-thumb {
 .lfo-rd-col {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+}
+.lfo-knob {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+.lfo-knob .knob-label {
+  min-width: 30px;
+  text-align: right;
+}
+.lfo-knob .knob-val {
+  min-width: 34px;
+  text-align: left;
+}
+.knob-sm {
+  width: 26px;
+  height: 26px;
+}
+.knob-sm::after {
+  width: 2px;
+  height: 8px;
+  top: 1px;
 }
 select {
   background: var(--bg3);
