@@ -568,10 +568,50 @@ let currentPW = 0.5; // LFO-modulated pulse width
 // ─── LFO STATE (4 modular LFOs) ──────────────────────────────────────────────
 const LFO_COLORS = ["#ff6b35", "#00e5ff", "#a0ff60", "#ff60b8"];
 const lfos = [
-  { rate: 1.0,  depth: 0.2,  wave: "sine", target: "filter", phase: 0, animPhase: 0, animId: null, osc: null, gainNode: null },
-  { rate: 0.55, depth: 0.25, wave: "sine", target: "pw",     phase: 0, animPhase: 0, animId: null, osc: null, gainNode: null },
-  { rate: 0.55, depth: 0.0,  wave: "sine", target: "",       phase: 0, animPhase: 0, animId: null, osc: null, gainNode: null },
-  { rate: 0.55, depth: 0.0,  wave: "sine", target: "",       phase: 0, animPhase: 0, animId: null, osc: null, gainNode: null },
+  {
+    rate: 1.0,
+    depth: 0.2,
+    wave: "sine",
+    target: "filter",
+    phase: 0,
+    animPhase: 0,
+    animId: null,
+    osc: null,
+    gainNode: null,
+  },
+  {
+    rate: 0.55,
+    depth: 0.25,
+    wave: "sine",
+    target: "pw",
+    phase: 0,
+    animPhase: 0,
+    animId: null,
+    osc: null,
+    gainNode: null,
+  },
+  {
+    rate: 0.55,
+    depth: 0.0,
+    wave: "sine",
+    target: "",
+    phase: 0,
+    animPhase: 0,
+    animId: null,
+    osc: null,
+    gainNode: null,
+  },
+  {
+    rate: 0.55,
+    depth: 0.0,
+    wave: "sine",
+    target: "",
+    phase: 0,
+    animPhase: 0,
+    animId: null,
+    osc: null,
+    gainNode: null,
+  },
 ];
 
 // ─── FILTER ADSR STATE ───────────────────────────────────────────────────────
@@ -1031,28 +1071,40 @@ function updateFilter() {
 function getLFOTargetParam(target) {
   if (!audioCtx) return null;
   switch (target) {
-    case "filter":    return filterNode?.frequency;
-    case "resonance": return filterNode?.Q;
-    case "volume":    return masterGain?.gain;
-    case "delay-wet": return delayWetGain?.gain;
-    default:          return null;
+    case "filter":
+      return filterNode?.frequency;
+    case "resonance":
+      return filterNode?.Q;
+    case "volume":
+      return masterGain?.gain;
+    case "delay-wet":
+      return delayWetGain?.gain;
+    default:
+      return null;
   }
 }
 
 function getLFOGainValue(lfo) {
   switch (lfo.target) {
-    case "filter":    return lfo.depth * filterCutoff;
-    case "resonance": return lfo.depth * 10;
-    case "volume":    return lfo.depth * volume * 0.3;
-    case "delay-wet": return lfo.depth * delayWet;
-    default:          return 0;
+    case "filter":
+      return lfo.depth * filterCutoff;
+    case "resonance":
+      return lfo.depth * 10;
+    case "volume":
+      return lfo.depth * volume * 0.3;
+    case "delay-wet":
+      return lfo.depth * delayWet;
+    default:
+      return 0;
   }
 }
 
 function connectLFO(i) {
   const lfo = lfos[i];
   if (!audioCtx || !lfo.gainNode) return;
-  try { lfo.gainNode.disconnect(); } catch (e) {}
+  try {
+    lfo.gainNode.disconnect();
+  } catch (e) {}
   const param = getLFOTargetParam(lfo.target);
   if (param) {
     lfo.gainNode.gain.value = getLFOGainValue(lfo);
@@ -1597,10 +1649,10 @@ function renderScaleList() {
   }
 
   function updateKnobVisual(inputId) {
-    // find sibling .knob via closest .knob-group
+    // find sibling .knob via closest .knob-group or .lfo-knob
     const inp = document.getElementById(inputId);
     if (!inp) return;
-    const group = inp.closest(".knob-group");
+    const group = inp.closest(".knob-group") || inp.closest(".lfo-knob");
     if (!group) return;
     const knobEl = group.querySelector(".knob");
     if (!knobEl) return;
@@ -1651,7 +1703,7 @@ function renderScaleList() {
     if (activeKnobInput) {
       const inp = document.getElementById(activeKnobInput);
       if (inp) {
-        const group = inp.closest(".knob-group");
+        const group = inp.closest(".knob-group") || inp.closest(".lfo-knob");
         if (group) {
           const knobEl = group.querySelector(".knob");
           if (knobEl) knobEl.classList.remove("active");
@@ -1671,7 +1723,7 @@ function renderScaleList() {
     dragStartY = e.clientY;
     const inp = document.getElementById(inputId);
     dragStartVal = inp ? parseFloat(inp.value) : 0;
-    const group = inp ? inp.closest(".knob-group") : null;
+    const group = inp ? (inp.closest(".knob-group") || inp.closest(".lfo-knob")) : null;
     if (group) {
       const knobEl = group.querySelector(".knob");
       if (knobEl) knobEl.classList.add("active");
