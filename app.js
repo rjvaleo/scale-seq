@@ -562,24 +562,17 @@ let playingStepIdx = -1;
 let filterCutoff = 2046; // Hz (log-scale, slider default=67)
 let filterRes = 2.09; // Q factor
 let filterNode = null;
-let lfoOsc = null;
-let lfoGain = null;
-let lfoRate = 1.0; // Hz
-let lfoDepth = 0.2; // 0–1
-let lfoWave = "sine";
-let lfoPhase = 0; // phase tracker for per-step PWM
 let pulseWidth = 0.5; // base duty cycle for pulse wave
 let currentPW = 0.5; // LFO-modulated pulse width
-let lfoAnimId = null;
-let lfoAnimPhase = 0;
 
-// ─── LFO 2 (PWM) STATE ───────────────────────────────────────────────────────
-let lfo2Rate = 0.6; // Hz
-let lfo2Depth = 0.25; // 0–1
-let lfo2Wave = "sine";
-let lfo2Phase = 0;
-let lfo2AnimId = null;
-let lfo2AnimPhase = 0;
+// ─── LFO STATE (4 modular LFOs) ──────────────────────────────────────────────
+const LFO_COLORS = ["#ff6b35", "#00e5ff", "#a0ff60", "#ff60b8"];
+const lfos = [
+  { rate: 1.0,  depth: 0.2,  wave: "sine", target: "filter", phase: 0, animPhase: 0, animId: null, osc: null, gainNode: null },
+  { rate: 0.55, depth: 0.25, wave: "sine", target: "pw",     phase: 0, animPhase: 0, animId: null, osc: null, gainNode: null },
+  { rate: 0.55, depth: 0.0,  wave: "sine", target: "",       phase: 0, animPhase: 0, animId: null, osc: null, gainNode: null },
+  { rate: 0.55, depth: 0.0,  wave: "sine", target: "",       phase: 0, animPhase: 0, animId: null, osc: null, gainNode: null },
+];
 
 // ─── FILTER ADSR STATE ───────────────────────────────────────────────────────
 let filterADSR = { a: 10, d: 150, s: 0.3, r: 300 };
@@ -687,15 +680,17 @@ function initAudio() {
   delayHiCutRL.connect(delayFbGainRL);
   delayFbGainRL.connect(delayL);
 
-  // LFO oscillator modulates filter cutoff
-  lfoOsc = audioCtx.createOscillator();
-  lfoGain = audioCtx.createGain();
-  lfoOsc.type = lfoWave;
-  lfoOsc.frequency.value = lfoRate;
-  lfoGain.gain.value = lfoDepth * filterCutoff;
-  lfoOsc.connect(lfoGain);
-  lfoGain.connect(filterNode.frequency);
-  lfoOsc.start();
+  // Initialize all 4 LFO oscillators and connect to their targets
+  lfos.forEach((lfo, i) => {
+    lfo.osc = audioCtx.createOscillator();
+    lfo.gainNode = audioCtx.createGain();
+    lfo.osc.type = lfo.wave;
+    lfo.osc.frequency.value = lfo.rate;
+    lfo.gainNode.gain.value = 0;
+    lfo.osc.connect(lfo.gainNode);
+    lfo.osc.start();
+    connectLFO(i);
+  });
 }
 
 function playNote(freq, time) {
@@ -842,13 +837,16 @@ function scheduler() {
   while (nextNoteTime < audioCtx.currentTime + lookAhead) {
     const step = steps[currentStep];
     const stepDur = (60 / bpm) * stepBeats;
-    // LFO 2 phase-advance per step for PWM modulation
+    // Advance phases for PW-targeting LFOs and compute combined PWM modulation
+    let pwMod = 0;
+    lfos.forEach((lfo) => {
+      if (lfo.target === "pw") {
+        lfo.phase += lfo.rate * stepDur * 2 * Math.PI;
+        pwMod += Math.sin(lfo.phase) * lfo.depth * 0.45;
+      }
+    });
     if (waveType === "pulse") {
-      const lfo2Val = Math.sin(lfo2Phase);
-      currentPW = Math.max(
-        0.05,
-        Math.min(0.95, pulseWidth + lfo2Val * lfo2Depth * 0.45),
-      );
+      currentPW = Math.max(0.05, Math.min(0.95, pulseWidth + pwMod));
     }
     if (!step.rest) {
       const freq = getFreqForDegree(step.degree);
@@ -865,8 +863,6 @@ function scheduler() {
         Math.max(0, (nextNoteTime - audioCtx.currentTime) * 1000),
       );
     }
-    lfoPhase += lfoRate * stepDur * 2 * Math.PI;
-    lfo2Phase += lfo2Rate * stepDur * 2 * Math.PI;
     nextNoteTime += stepDur;
     getNextStep();
   }
@@ -1000,16 +996,6 @@ function setWaveType(v) {
   waveType = v;
   const isPulse = v === "pulse";
   document.getElementById("pwGroup").style.opacity = isPulse ? "1" : "0.35";
-  document.getElementById("pwm2Group").style.opacity = isPulse ? "1" : "0.35";
-  document.getElementById("pwm2DepthGroup").style.opacity = isPulse
-    ? "1"
-    : "0.35";
-  document.getElementById("pwm2ShapeGroup").style.opacity = isPulse
-    ? "1"
-    : "0.35";
-  document.getElementById("pwm2CanvasGroup").style.opacity = isPulse
-    ? "1"
-    : "0.35";
 }
 
 // ─── FILTER CONTROLS ──────────────────────────────────────────────────────────
@@ -1028,7 +1014,11 @@ function updateFilter() {
     // rapid knob movement doesn't produce clicks.
     filterNode.frequency.setTargetAtTime(filterCutoff, now, 0.015);
     filterNode.Q.value = filterRes;
-    if (lfoGain) lfoGain.gain.value = lfoDepth * filterCutoff;
+    lfos.forEach((lfo) => {
+      if (lfo.target === "filter" && lfo.gainNode) {
+        lfo.gainNode.gain.value = getLFOGainValue(lfo);
+      }
+    });
   }
   document.getElementById("cutoffVal").textContent =
     filterCutoff >= 1000
@@ -1037,38 +1027,67 @@ function updateFilter() {
   document.getElementById("resVal").textContent = "Q " + filterRes.toFixed(1);
 }
 
-// ─── LFO CONTROLS ─────────────────────────────────────────────────────────────
-function updateLFO() {
-  const rv = parseInt(document.getElementById("lfoRateSlider").value);
-  const dv = parseInt(document.getElementById("lfoDepthSlider").value);
-  lfoWave = document.getElementById("lfoWaveSelect").value;
-  lfoRate = 0.05 * Math.pow(400, rv / 100);
-  lfoDepth = dv / 100;
-  if (lfoOsc) {
-    lfoOsc.type = lfoWave;
-    lfoOsc.frequency.value = lfoRate;
+// ─── LFO SYSTEM ───────────────────────────────────────────────────────────────
+function getLFOTargetParam(target) {
+  if (!audioCtx) return null;
+  switch (target) {
+    case "filter":    return filterNode?.frequency;
+    case "resonance": return filterNode?.Q;
+    case "volume":    return masterGain?.gain;
+    case "delay-wet": return delayWetGain?.gain;
+    default:          return null;
   }
-  if (lfoGain) lfoGain.gain.value = lfoDepth * filterCutoff;
-  document.getElementById("lfoRateVal").textContent =
-    (lfoRate < 1 ? lfoRate.toFixed(2) : lfoRate.toFixed(1)) + "Hz";
-  document.getElementById("lfoDepthVal").textContent = dv + "%";
+}
+
+function getLFOGainValue(lfo) {
+  switch (lfo.target) {
+    case "filter":    return lfo.depth * filterCutoff;
+    case "resonance": return lfo.depth * 10;
+    case "volume":    return lfo.depth * volume * 0.3;
+    case "delay-wet": return lfo.depth * delayWet;
+    default:          return 0;
+  }
+}
+
+function connectLFO(i) {
+  const lfo = lfos[i];
+  if (!audioCtx || !lfo.gainNode) return;
+  try { lfo.gainNode.disconnect(); } catch (e) {}
+  const param = getLFOTargetParam(lfo.target);
+  if (param) {
+    lfo.gainNode.gain.value = getLFOGainValue(lfo);
+    lfo.gainNode.connect(param);
+  } else {
+    lfo.gainNode.gain.value = 0;
+  }
+}
+
+function updateLFO(i) {
+  const lfo = lfos[i];
+  const n = i + 1;
+  const rv = parseInt(document.getElementById(`lfo${n}RateSlider`).value);
+  const dv = parseInt(document.getElementById(`lfo${n}DepthSlider`).value);
+  lfo.wave = document.getElementById(`lfo${n}WaveSelect`).value;
+  lfo.rate = 0.05 * Math.pow(400, rv / 100);
+  lfo.depth = dv / 100;
+  if (lfo.osc) {
+    lfo.osc.type = lfo.wave;
+    lfo.osc.frequency.value = lfo.rate;
+  }
+  if (lfo.gainNode) lfo.gainNode.gain.value = getLFOGainValue(lfo);
+  document.getElementById(`lfo${n}RateVal`).textContent =
+    (lfo.rate < 1 ? lfo.rate.toFixed(2) : lfo.rate.toFixed(1)) + "Hz";
+  document.getElementById(`lfo${n}DepthVal`).textContent = dv + "%";
+}
+
+function changeLFOTarget(i, target) {
+  lfos[i].target = target;
+  connectLFO(i);
 }
 
 function updatePW(v) {
   pulseWidth = parseInt(v) / 100;
   document.getElementById("pwVal").textContent = v + "%";
-}
-
-// ─── LFO 2 (PWM) CONTROLS ─────────────────────────────────────────────────
-function updatePwLFO() {
-  const rv = parseInt(document.getElementById("lfo2RateSlider").value);
-  const dv = parseInt(document.getElementById("lfo2DepthSlider").value);
-  lfo2Wave = document.getElementById("lfo2WaveSelect").value;
-  lfo2Rate = 0.05 * Math.pow(400, rv / 100);
-  lfo2Depth = dv / 100;
-  document.getElementById("lfo2RateVal").textContent =
-    (lfo2Rate < 1 ? lfo2Rate.toFixed(2) : lfo2Rate.toFixed(1)) + "Hz";
-  document.getElementById("lfo2DepthVal").textContent = dv + "%";
 }
 
 // ─── FILTER ADSR CONTROLS ─────────────────────────────────────────────────
@@ -1330,8 +1349,9 @@ function drawFilterADSRCanvas() {
 }
 
 // ─── LFO CANVAS ──────────────────────────────────────────────────────────────
-function drawLFOCanvas() {
-  const canvas = document.getElementById("lfoCanvas");
+function drawLFOCanvas(i) {
+  const lfo = lfos[i];
+  const canvas = document.getElementById(`lfo${i + 1}Canvas`);
   if (!canvas) return;
   const W = canvas.width,
     H = canvas.height;
@@ -1339,18 +1359,17 @@ function drawLFOCanvas() {
   c.clearRect(0, 0, W, H);
   c.fillStyle = "#0a0c0e";
   c.fillRect(0, 0, W, H);
-  // Center reference line
   c.beginPath();
   c.moveTo(0, H / 2);
   c.lineTo(W, H / 2);
   c.strokeStyle = "#1e2830";
   c.lineWidth = 1;
   c.stroke();
-  const shape = lfoWave;
+  const shape = lfo.wave;
   const cycles = 2.5;
   c.beginPath();
   for (let x = 0; x <= W; x++) {
-    const t = (x / W) * cycles * 2 * Math.PI + lfoAnimPhase;
+    const t = (x / W) * cycles * 2 * Math.PI + lfo.animPhase;
     let y;
     if (shape === "sine") {
       y = Math.sin(t);
@@ -1365,53 +1384,11 @@ function drawLFOCanvas() {
     if (x === 0) c.moveTo(x, cy);
     else c.lineTo(x, cy);
   }
-  c.strokeStyle = "#ff6b35";
+  c.strokeStyle = LFO_COLORS[i];
   c.lineWidth = 1.5;
   c.stroke();
-  lfoAnimPhase += 0.04 * lfoRate;
-  lfoAnimId = requestAnimationFrame(drawLFOCanvas);
-}
-
-// ─── LFO 2 CANVAS ────────────────────────────────────────────────────────────
-function drawLFO2Canvas() {
-  const canvas = document.getElementById("lfo2Canvas");
-  if (!canvas) return;
-  const W = canvas.width,
-    H = canvas.height;
-  const c = canvas.getContext("2d");
-  c.clearRect(0, 0, W, H);
-  c.fillStyle = "#0a0c0e";
-  c.fillRect(0, 0, W, H);
-  c.beginPath();
-  c.moveTo(0, H / 2);
-  c.lineTo(W, H / 2);
-  c.strokeStyle = "#1e2830";
-  c.lineWidth = 1;
-  c.stroke();
-  const shape = lfo2Wave;
-  const cycles = 2.5;
-  c.beginPath();
-  for (let x = 0; x <= W; x++) {
-    const t = (x / W) * cycles * 2 * Math.PI + lfo2AnimPhase;
-    let y;
-    if (shape === "sine") {
-      y = Math.sin(t);
-    } else if (shape === "triangle") {
-      const p = (((t / (2 * Math.PI)) % 1) + 1) % 1;
-      y = p < 0.5 ? 4 * p - 1 : 3 - 4 * p;
-    } else {
-      const p = (((t / (2 * Math.PI)) % 1) + 1) % 1;
-      y = 2 * p - 1;
-    }
-    const cy = H / 2 - y * (H / 2 - 4);
-    if (x === 0) c.moveTo(x, cy);
-    else c.lineTo(x, cy);
-  }
-  c.strokeStyle = "#00e5ff";
-  c.lineWidth = 1.5;
-  c.stroke();
-  lfo2AnimPhase += 0.04 * lfo2Rate;
-  lfo2AnimId = requestAnimationFrame(drawLFO2Canvas);
+  lfo.animPhase += 0.04 * lfo.rate;
+  lfo.animId = requestAnimationFrame(() => drawLFOCanvas(i));
 }
 
 function updateRoot() {
@@ -1838,11 +1815,15 @@ function getPresetState() {
     "fsusSlider",
     "frelSlider",
     "famtSlider",
-    "lfoRateSlider",
-    "lfoDepthSlider",
-    "pwSlider",
+    "lfo1RateSlider",
+    "lfo1DepthSlider",
     "lfo2RateSlider",
     "lfo2DepthSlider",
+    "lfo3RateSlider",
+    "lfo3DepthSlider",
+    "lfo4RateSlider",
+    "lfo4DepthSlider",
+    "pwSlider",
     "delayFbSlider",
     "delayWetSlider",
     "delaySpreadSlider",
@@ -1854,8 +1835,14 @@ function getPresetState() {
     "waveSelect",
     "rootSelect",
     "octaveSelect",
-    "lfoWaveSelect",
+    "lfo1WaveSelect",
+    "lfo1TargetSelect",
     "lfo2WaveSelect",
+    "lfo2TargetSelect",
+    "lfo3WaveSelect",
+    "lfo3TargetSelect",
+    "lfo4WaveSelect",
+    "lfo4TargetSelect",
     "delayTimeSelect",
   ];
   const state = {
@@ -2095,11 +2082,15 @@ function morphToPreset(id) {
     "fsusSlider",
     "frelSlider",
     "famtSlider",
-    "lfoRateSlider",
-    "lfoDepthSlider",
-    "pwSlider",
+    "lfo1RateSlider",
+    "lfo1DepthSlider",
     "lfo2RateSlider",
     "lfo2DepthSlider",
+    "lfo3RateSlider",
+    "lfo3DepthSlider",
+    "lfo4RateSlider",
+    "lfo4DepthSlider",
+    "pwSlider",
     "delayFbSlider",
     "delayWetSlider",
     "delaySpreadSlider",
@@ -2127,8 +2118,14 @@ function morphToPreset(id) {
     "waveSelect",
     "rootSelect",
     "octaveSelect",
-    "lfoWaveSelect",
+    "lfo1WaveSelect",
+    "lfo1TargetSelect",
     "lfo2WaveSelect",
+    "lfo2TargetSelect",
+    "lfo3WaveSelect",
+    "lfo3TargetSelect",
+    "lfo4WaveSelect",
+    "lfo4TargetSelect",
     "delayTimeSelect",
   ];
   SELECT_IDS.forEach((sid) => {
@@ -2260,13 +2257,11 @@ selectScale(0); // Default: Pythagorean
 renderStepGrid();
 updateEnv();
 updateFilter();
-updateLFO();
-updatePwLFO();
+lfos.forEach((_, i) => updateLFO(i));
 updateFilterADSR();
 updateKeyFollow();
 updateDelay();
-drawLFOCanvas();
-drawLFO2Canvas();
+lfos.forEach((_, i) => drawLFOCanvas(i));
 drawPPCanvas();
 initPresets();
 
