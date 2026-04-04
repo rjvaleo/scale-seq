@@ -1970,6 +1970,67 @@ function deleteSelectedPreset() {
   if (display) display.textContent = "NO PRESET";
 }
 
+function exportPresets() {
+  const list = loadPresetsFromStorage();
+  if (!list.length) {
+    alert("No presets saved yet — save some first!");
+    return;
+  }
+  const json = JSON.stringify(list, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "presets.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importPresets(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error("not an array");
+      const existing = loadPresetsFromStorage();
+      const existingIds = new Set(existing.map((p) => p.id));
+      const newOnes = imported.filter((p) => !existingIds.has(p.id));
+      savePresetsToStorage([...newOnes, ...existing]);
+      renderPresetList();
+      input.value = "";
+      const btn = document.querySelector(".preset-import-btn");
+      if (btn) {
+        btn.textContent = `✓ ${newOnes.length} IMPORTED`;
+        setTimeout(() => (btn.textContent = "↑ IMPORT"), 1500);
+      }
+    } catch {
+      alert("Could not read preset file — make sure it's a valid JSON export.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+// On fresh load, fetch presets.json from the server if localStorage is empty.
+// This lets you commit an exported presets.json to the repo as the default set.
+async function initPresets() {
+  if (loadPresetsFromStorage().length === 0) {
+    try {
+      const resp = await fetch("presets.json");
+      if (resp.ok) {
+        const defaults = await resp.json();
+        if (Array.isArray(defaults) && defaults.length > 0) {
+          savePresetsToStorage(defaults);
+        }
+      }
+    } catch {
+      // presets.json not present — fine, start with empty list
+    }
+  }
+  renderPresetList();
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 renderScaleList();
 selectScale(0); // Default: Pythagorean
@@ -1984,7 +2045,7 @@ updateDelay();
 drawLFOCanvas();
 drawLFO2Canvas();
 drawPPCanvas();
-renderPresetList();
+initPresets();
 
 // Auto-resume AudioContext on first interaction
 document.addEventListener(

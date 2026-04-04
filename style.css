@@ -629,3 +629,25 @@ canvas.env-canvas {
   white-space: nowrap;
   opacity: 0.7;
 }
+.preset-export-btn {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-size: 10px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+.preset-export-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+.preset-import-btn {
+  border-color: var(--text-dim);
+  color: var(--text-dim);
+  font-size: 10px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+.preset-import-btn:hover {
+  border-color: var(--text);
+  color: var(--text);
+}

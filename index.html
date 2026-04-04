@@ -98,6 +98,29 @@
             ✕
           </button>
         </div>
+        <div class="preset-controls">
+          <button
+            class="btn preset-export-btn"
+            onclick="exportPresets()"
+            title="Download presets as JSON file"
+          >
+            ↓ EXPORT
+          </button>
+          <button
+            class="btn preset-import-btn"
+            onclick="document.getElementById('presetFileInput').click()"
+            title="Load presets from JSON file"
+          >
+            ↑ IMPORT
+          </button>
+          <input
+            type="file"
+            id="presetFileInput"
+            accept=".json"
+            style="display: none"
+            onchange="importPresets(this)"
+          />
+        </div>
         <span class="preset-name-display" id="presetNameDisplay"
           >NO PRESET</span
         >
