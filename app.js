@@ -626,11 +626,11 @@ const KEY_FOLLOW_REF_MIDI = 60;
 // ─── REVERB STATE ────────────────────────────────────────────────────────────
 const COMB_DELAYS_S = [0.0833, 0.1009, 0.1151, 0.1271, 0.1493, 0.1913];
 let reverbWet = 0.0;
-let reverbDecay = 0.7;      // 0..1 → RT60 0.5s..30s
-let reverbPreDelay = 0.1;   // 0..1 → 0..150ms
-let reverbDamp = 0.4;       // 0..1 → 500Hz..20kHz comb hi-cut
-let reverbShimmer = 0.5;    // 0..1 → chorus LFO depth
-let reverbSpread = 0.8;     // 0..1 → stereo pan ±
+let reverbDecay = 0.7; // 0..1 → RT60 0.5s..30s
+let reverbPreDelay = 0.1; // 0..1 → 0..150ms
+let reverbDamp = 0.4; // 0..1 → 500Hz..20kHz comb hi-cut
+let reverbShimmer = 0.5; // 0..1 → chorus LFO depth
+let reverbSpread = 0.8; // 0..1 → stereo pan ±
 let reverbPreDelayNode = null;
 let reverbSendGain = null;
 let reverbWetGain = null;
@@ -807,7 +807,10 @@ function initAudio() {
     lp.Q.value = 0.5;
     reverbCombHiCutNodes.push(lp);
     const fb = audioCtx.createGain();
-    fb.gain.value = Math.pow(10, (-3 * COMB_DELAYS_S[c]) / initRt60);
+    fb.gain.value = Math.min(
+      0.975,
+      Math.pow(10, (-3 * COMB_DELAYS_S[c]) / initRt60),
+    );
     reverbCombFbGains.push(fb);
 
     reverbSendGain.connect(dNode);
@@ -825,19 +828,25 @@ function initAudio() {
       reverbAPFbNodes.push(ap1, ap2);
       reverbPhaserLFOGain.connect(ap1.frequency);
       reverbPhaserLFOGain.connect(ap2.frequency);
-      dNode.connect(lp); lp.connect(ap1); ap1.connect(ap2); ap2.connect(fb); fb.connect(dNode);
+      dNode.connect(lp);
+      lp.connect(ap1);
+      ap1.connect(ap2);
+      ap2.connect(fb);
+      fb.connect(dNode);
     } else {
       const chorusLFO = audioCtx.createOscillator();
       chorusLFO.type = "sine";
       chorusLFO.frequency.value = CHORUS_RATES[chorusIdx++];
       const chorusGain = audioCtx.createGain();
-      chorusGain.gain.value = reverbShimmer * 0.006;
+      chorusGain.gain.value = reverbShimmer * 0.003;
       chorusLFO.connect(chorusGain);
       chorusGain.connect(dNode.delayTime);
       chorusLFO.start();
       reverbChorusGainNodes.push(chorusGain);
       reverbChorusLFONodes.push(chorusLFO);
-      dNode.connect(lp); lp.connect(fb); fb.connect(dNode);
+      dNode.connect(lp);
+      lp.connect(fb);
+      fb.connect(dNode);
     }
   }
 
@@ -1328,63 +1337,89 @@ function updateDelay() {
 
 // ─── REVERB CONTROLS ─────────────────────────────────────────────────────────
 function updateReverb() {
-  const wetV  = parseInt(document.getElementById("reverbWetSlider").value);
-  const decV  = parseInt(document.getElementById("reverbDecaySlider").value);
-  const pdV   = parseInt(document.getElementById("reverbPreDlySlider").value);
+  const wetV = parseInt(document.getElementById("reverbWetSlider").value);
+  const decV = parseInt(document.getElementById("reverbDecaySlider").value);
+  const pdV = parseInt(document.getElementById("reverbPreDlySlider").value);
   const dampV = parseInt(document.getElementById("reverbDampSlider").value);
   const shimV = parseInt(document.getElementById("reverbShimmerSlider").value);
-  const sprV  = parseInt(document.getElementById("reverbSpreadSlider").value);
-  reverbWet      = wetV  / 100;
-  reverbDecay    = decV  / 100;
-  reverbPreDelay = pdV   / 100;
-  reverbDamp     = dampV / 100;
-  reverbShimmer  = shimV / 100;
-  reverbSpread   = sprV  / 100;
+  const sprV = parseInt(document.getElementById("reverbSpreadSlider").value);
+  reverbWet = wetV / 100;
+  reverbDecay = decV / 100;
+  reverbPreDelay = pdV / 100;
+  reverbDamp = dampV / 100;
+  reverbShimmer = shimV / 100;
+  reverbSpread = sprV / 100;
   if (reverbSendGain) reverbSendGain.gain.value = reverbWet;
   if (reverbPreDelayNode && audioCtx)
-    reverbPreDelayNode.delayTime.setTargetAtTime(reverbPreDelay * 0.15, audioCtx.currentTime, 0.015);
+    reverbPreDelayNode.delayTime.setTargetAtTime(
+      reverbPreDelay * 0.15,
+      audioCtx.currentTime,
+      0.015,
+    );
   const rt60 = 0.5 + reverbDecay * 29.5;
   const dampFreq = 500 * Math.pow(40, reverbDamp);
   for (let c = 0; c < COMB_DELAYS_S.length; c++) {
     if (reverbCombFbGains[c])
-      reverbCombFbGains[c].gain.value = Math.pow(10, (-3 * COMB_DELAYS_S[c]) / rt60);
+      reverbCombFbGains[c].gain.value = Math.min(
+        0.975,
+        Math.pow(10, (-3 * COMB_DELAYS_S[c]) / rt60),
+      );
     if (reverbCombHiCutNodes[c])
       reverbCombHiCutNodes[c].frequency.value = dampFreq;
   }
-  for (const cg of reverbChorusGainNodes) cg.gain.value = reverbShimmer * 0.006;
+  for (const cg of reverbChorusGainNodes) cg.gain.value = reverbShimmer * 0.003;
   if (reverbPanL) reverbPanL.pan.value = -reverbSpread;
-  if (reverbPanR) reverbPanR.pan.value =  reverbSpread;
+  if (reverbPanR) reverbPanR.pan.value = reverbSpread;
   const rt60Disp = rt60 < 10 ? rt60.toFixed(1) + "s" : Math.round(rt60) + "s";
   const pdMs = Math.round(reverbPreDelay * 150);
-  const dampDisp = dampFreq >= 1000
-    ? (dampFreq / 1000).toFixed(1) + "kHz"
-    : Math.round(dampFreq) + "Hz";
-  document.getElementById("reverbWetVal").textContent     = wetV + "%";
-  document.getElementById("reverbDecayVal").textContent   = rt60Disp;
-  document.getElementById("reverbPreDlyVal").textContent  = pdMs + "ms";
-  document.getElementById("reverbDampVal").textContent    = dampDisp;
+  const dampDisp =
+    dampFreq >= 1000
+      ? (dampFreq / 1000).toFixed(1) + "kHz"
+      : Math.round(dampFreq) + "Hz";
+  document.getElementById("reverbWetVal").textContent = wetV + "%";
+  document.getElementById("reverbDecayVal").textContent = rt60Disp;
+  document.getElementById("reverbPreDlyVal").textContent = pdMs + "ms";
+  document.getElementById("reverbDampVal").textContent = dampDisp;
   document.getElementById("reverbShimmerVal").textContent = shimV + "%";
-  document.getElementById("reverbSpreadVal").textContent  = sprV + "%";
+  document.getElementById("reverbSpreadVal").textContent = sprV + "%";
 }
 
 function setReverbPreset(p) {
   const presets = {
-    room: { wet: 30, decay: 18, preDly:  5, damp: 62, shimmer: 18, spread: 55 },
+    room: { wet: 30, decay: 18, preDly: 5, damp: 62, shimmer: 18, spread: 55 },
     hall: { wet: 38, decay: 52, preDly: 15, damp: 48, shimmer: 35, spread: 80 },
-    cath: { wet: 45, decay: 82, preDly: 26, damp: 32, shimmer: 62, spread:100 },
-    inf:  { wet: 60, decay:100, preDly: 33, damp: 18, shimmer: 90, spread:100 },
+    cath: {
+      wet: 45,
+      decay: 82,
+      preDly: 26,
+      damp: 32,
+      shimmer: 62,
+      spread: 100,
+    },
+    inf: {
+      wet: 60,
+      decay: 100,
+      preDly: 33,
+      damp: 18,
+      shimmer: 90,
+      spread: 100,
+    },
   };
   const s = presets[p];
   if (!s) return;
-  [["reverbWetSlider", s.wet], ["reverbDecaySlider", s.decay],
-   ["reverbPreDlySlider", s.preDly], ["reverbDampSlider", s.damp],
-   ["reverbShimmerSlider", s.shimmer], ["reverbSpreadSlider", s.spread]]
-    .forEach(([id, v]) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.value = v;
-      if (window.updateKnobVisual) window.updateKnobVisual(id);
-    });
+  [
+    ["reverbWetSlider", s.wet],
+    ["reverbDecaySlider", s.decay],
+    ["reverbPreDlySlider", s.preDly],
+    ["reverbDampSlider", s.damp],
+    ["reverbShimmerSlider", s.shimmer],
+    ["reverbSpreadSlider", s.spread],
+  ].forEach(([id, v]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.value = v;
+    if (window.updateKnobVisual) window.updateKnobVisual(id);
+  });
   updateReverb();
 }
 
