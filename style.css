@@ -28,8 +28,10 @@ body {
   color: var(--text);
   font-family: "Share Tech Mono", monospace;
   font-size: 12px;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 /* HEADER */
@@ -149,7 +151,8 @@ input[type="range"]::-webkit-slider-thumb {
   grid-template-columns: 280px 1fr;
   grid-template-rows: auto 1fr;
   gap: 0;
-  height: calc(100vh - 88px);
+  flex: 1;
+  min-height: 0;
 }
 
 /* SCALE PANEL */
@@ -215,6 +218,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 /* SYNTH CONTROLS */
@@ -380,6 +384,7 @@ select:focus {
 /* SEQUENCER */
 .seq-panel {
   flex: 1;
+  min-height: 0;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
