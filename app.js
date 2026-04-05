@@ -626,17 +626,25 @@ const KEY_FOLLOW_REF_MIDI = 60;
 // ─── REVERB STATE ────────────────────────────────────────────────────────────
 const COMB_DELAYS_S = [0.0833, 0.1009, 0.1151, 0.1271, 0.1493, 0.1913];
 let reverbWet = 0.0;
-let reverbSize = 0.7; // 0..1 → RT60 2s..10s
-let reverbShimmer = 0.5; // 0..1 → chorus depth
+let reverbDecay = 0.7;      // 0..1 → RT60 0.5s..30s
+let reverbPreDelay = 0.1;   // 0..1 → 0..150ms
+let reverbDamp = 0.4;       // 0..1 → 500Hz..20kHz comb hi-cut
+let reverbShimmer = 0.5;    // 0..1 → chorus LFO depth
+let reverbSpread = 0.8;     // 0..1 → stereo pan ±
+let reverbPreDelayNode = null;
 let reverbSendGain = null;
 let reverbWetGain = null;
 let reverbSumGain = null;
 let reverbCombFbGains = [];
+let reverbCombHiCutNodes = [];
 let reverbChorusGainNodes = [];
+let reverbChorusLFONodes = [];
 let reverbAPFbNodes = [];
 let reverbPhaserLFO = null;
 let reverbPhaserLFOGain = null;
 let reverbOutAP = [];
+let reverbPanL = null;
+let reverbPanR = null;
 
 // ─── DELAY STATE ─────────────────────────────────────────────────────────────
 let delaySubdiv = 0.5; // beats (1/8 note default)
@@ -736,15 +744,19 @@ function initAudio() {
   delayFbGainRL.connect(delayL);
 
   // ── Cathedral Reverb (parallel with delay) ───────────────────────────────
-  // Architecture: 6 parallel comb filters → output all-pass diffusers → master
-  //   Even combs (0,2,4): phaser in regen (2 allpass in feedback, LFO modulated)
-  //   Odd combs (1,3,5): chorus in regen (delay-time LFO modulation = shimmer)
+  // preDelay → send → 6 parallel combs → sum → 2 AP diffusers → stereo spread → out
+  //   Even combs (0,2,4): phaser in regen (allpass pair, LFO modulated)
+  //   Odd  combs (1,3,5): chorus in regen (LFO on delay time = shimmer)
+  reverbPreDelayNode = audioCtx.createDelay(0.15);
+  reverbPreDelayNode.delayTime.value = reverbPreDelay * 0.15;
+  filterNode.connect(reverbPreDelayNode);
+
   reverbSendGain = audioCtx.createGain();
   reverbSendGain.gain.value = reverbWet;
-  filterNode.connect(reverbSendGain);
+  reverbPreDelayNode.connect(reverbSendGain);
 
   reverbWetGain = audioCtx.createGain();
-  reverbWetGain.gain.value = 1.0;
+  reverbWetGain.gain.value = 0.5; // ×0.5 to normalise two L+R panner paths
   reverbWetGain.connect(masterGain);
   reverbWetGain.connect(captureDestNode);
 
@@ -762,9 +774,18 @@ function initAudio() {
   reverbOutAP[1].Q.value = 1.0;
   reverbSumGain.connect(reverbOutAP[0]);
   reverbOutAP[0].connect(reverbOutAP[1]);
-  reverbOutAP[1].connect(reverbWetGain);
 
-  // Phaser LFO shared across all AP-in-feedback filters
+  // Stereo spread — two panners after diffusers
+  reverbPanL = audioCtx.createStereoPanner();
+  reverbPanL.pan.value = -reverbSpread;
+  reverbPanR = audioCtx.createStereoPanner();
+  reverbPanR.pan.value = reverbSpread;
+  reverbOutAP[1].connect(reverbPanL);
+  reverbOutAP[1].connect(reverbPanR);
+  reverbPanL.connect(reverbWetGain);
+  reverbPanR.connect(reverbWetGain);
+
+  // Phaser LFO shared across AP-in-feedback filters
   reverbPhaserLFO = audioCtx.createOscillator();
   reverbPhaserLFO.type = "sine";
   reverbPhaserLFO.frequency.value = 0.09;
@@ -773,27 +794,26 @@ function initAudio() {
   reverbPhaserLFO.connect(reverbPhaserLFOGain);
   reverbPhaserLFO.start();
 
-  // Chorus LFO rates for odd combs
   const CHORUS_RATES = [0.13, 0.19, 0.23];
   let chorusIdx = 0;
-
-  const rt60 = 2 + reverbSize * 8;
+  const initDampFreq = 500 * Math.pow(40, reverbDamp);
+  const initRt60 = 0.5 + reverbDecay * 29.5;
   for (let c = 0; c < COMB_DELAYS_S.length; c++) {
     const dNode = audioCtx.createDelay(4.0);
     dNode.delayTime.value = COMB_DELAYS_S[c];
     const lp = audioCtx.createBiquadFilter();
     lp.type = "lowpass";
-    lp.frequency.value = c % 2 === 0 ? 3000 : 4500;
+    lp.frequency.value = initDampFreq;
     lp.Q.value = 0.5;
+    reverbCombHiCutNodes.push(lp);
     const fb = audioCtx.createGain();
-    fb.gain.value = Math.pow(10, (-3 * COMB_DELAYS_S[c]) / rt60);
+    fb.gain.value = Math.pow(10, (-3 * COMB_DELAYS_S[c]) / initRt60);
     reverbCombFbGains.push(fb);
 
     reverbSendGain.connect(dNode);
     dNode.connect(reverbSumGain);
 
     if (c % 2 === 0) {
-      // Phaser in regen: 2 allpass filters in feedback, modulated by shared LFO
       const ap1 = audioCtx.createBiquadFilter();
       ap1.type = "allpass";
       ap1.frequency.value = 700 + c * 200;
@@ -805,27 +825,19 @@ function initAudio() {
       reverbAPFbNodes.push(ap1, ap2);
       reverbPhaserLFOGain.connect(ap1.frequency);
       reverbPhaserLFOGain.connect(ap2.frequency);
-      // regen: dNode → lp → ap1 → ap2 → fb → dNode
-      dNode.connect(lp);
-      lp.connect(ap1);
-      ap1.connect(ap2);
-      ap2.connect(fb);
-      fb.connect(dNode);
+      dNode.connect(lp); lp.connect(ap1); ap1.connect(ap2); ap2.connect(fb); fb.connect(dNode);
     } else {
-      // Chorus in regen: LFO modulates delay time → shimmer
       const chorusLFO = audioCtx.createOscillator();
       chorusLFO.type = "sine";
       chorusLFO.frequency.value = CHORUS_RATES[chorusIdx++];
       const chorusGain = audioCtx.createGain();
-      chorusGain.gain.value = reverbShimmer * 0.003;
+      chorusGain.gain.value = reverbShimmer * 0.006;
       chorusLFO.connect(chorusGain);
       chorusGain.connect(dNode.delayTime);
       chorusLFO.start();
       reverbChorusGainNodes.push(chorusGain);
-      // regen: dNode → lp → fb → dNode
-      dNode.connect(lp);
-      lp.connect(fb);
-      fb.connect(dNode);
+      reverbChorusLFONodes.push(chorusLFO);
+      dNode.connect(lp); lp.connect(fb); fb.connect(dNode);
     }
   }
 
@@ -1316,30 +1328,64 @@ function updateDelay() {
 
 // ─── REVERB CONTROLS ─────────────────────────────────────────────────────────
 function updateReverb() {
-  const wetV = parseInt(document.getElementById("reverbWetSlider").value);
-  const sizeV = parseInt(document.getElementById("reverbSizeSlider").value);
+  const wetV  = parseInt(document.getElementById("reverbWetSlider").value);
+  const decV  = parseInt(document.getElementById("reverbDecaySlider").value);
+  const pdV   = parseInt(document.getElementById("reverbPreDlySlider").value);
+  const dampV = parseInt(document.getElementById("reverbDampSlider").value);
   const shimV = parseInt(document.getElementById("reverbShimmerSlider").value);
-  reverbWet = wetV / 100;
-  reverbSize = sizeV / 100;
-  reverbShimmer = shimV / 100;
+  const sprV  = parseInt(document.getElementById("reverbSpreadSlider").value);
+  reverbWet      = wetV  / 100;
+  reverbDecay    = decV  / 100;
+  reverbPreDelay = pdV   / 100;
+  reverbDamp     = dampV / 100;
+  reverbShimmer  = shimV / 100;
+  reverbSpread   = sprV  / 100;
   if (reverbSendGain) reverbSendGain.gain.value = reverbWet;
-  // Update comb feedback gains for new RT60
-  const rt60 = 2 + reverbSize * 8;
+  if (reverbPreDelayNode && audioCtx)
+    reverbPreDelayNode.delayTime.setTargetAtTime(reverbPreDelay * 0.15, audioCtx.currentTime, 0.015);
+  const rt60 = 0.5 + reverbDecay * 29.5;
+  const dampFreq = 500 * Math.pow(40, reverbDamp);
   for (let c = 0; c < COMB_DELAYS_S.length; c++) {
-    if (reverbCombFbGains[c]) {
-      reverbCombFbGains[c].gain.value = Math.pow(
-        10,
-        (-3 * COMB_DELAYS_S[c]) / rt60,
-      );
-    }
+    if (reverbCombFbGains[c])
+      reverbCombFbGains[c].gain.value = Math.pow(10, (-3 * COMB_DELAYS_S[c]) / rt60);
+    if (reverbCombHiCutNodes[c])
+      reverbCombHiCutNodes[c].frequency.value = dampFreq;
   }
-  // Update chorus (shimmer) depth
-  for (const cg of reverbChorusGainNodes) {
-    cg.gain.value = reverbShimmer * 0.003;
-  }
-  document.getElementById("reverbWetVal").textContent = wetV + "%";
-  document.getElementById("reverbSizeVal").textContent = sizeV + "%";
+  for (const cg of reverbChorusGainNodes) cg.gain.value = reverbShimmer * 0.006;
+  if (reverbPanL) reverbPanL.pan.value = -reverbSpread;
+  if (reverbPanR) reverbPanR.pan.value =  reverbSpread;
+  const rt60Disp = rt60 < 10 ? rt60.toFixed(1) + "s" : Math.round(rt60) + "s";
+  const pdMs = Math.round(reverbPreDelay * 150);
+  const dampDisp = dampFreq >= 1000
+    ? (dampFreq / 1000).toFixed(1) + "kHz"
+    : Math.round(dampFreq) + "Hz";
+  document.getElementById("reverbWetVal").textContent     = wetV + "%";
+  document.getElementById("reverbDecayVal").textContent   = rt60Disp;
+  document.getElementById("reverbPreDlyVal").textContent  = pdMs + "ms";
+  document.getElementById("reverbDampVal").textContent    = dampDisp;
   document.getElementById("reverbShimmerVal").textContent = shimV + "%";
+  document.getElementById("reverbSpreadVal").textContent  = sprV + "%";
+}
+
+function setReverbPreset(p) {
+  const presets = {
+    room: { wet: 30, decay: 18, preDly:  5, damp: 62, shimmer: 18, spread: 55 },
+    hall: { wet: 38, decay: 52, preDly: 15, damp: 48, shimmer: 35, spread: 80 },
+    cath: { wet: 45, decay: 82, preDly: 26, damp: 32, shimmer: 62, spread:100 },
+    inf:  { wet: 60, decay:100, preDly: 33, damp: 18, shimmer: 90, spread:100 },
+  };
+  const s = presets[p];
+  if (!s) return;
+  [["reverbWetSlider", s.wet], ["reverbDecaySlider", s.decay],
+   ["reverbPreDlySlider", s.preDly], ["reverbDampSlider", s.damp],
+   ["reverbShimmerSlider", s.shimmer], ["reverbSpreadSlider", s.spread]]
+    .forEach(([id, v]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.value = v;
+      if (window.updateKnobVisual) window.updateKnobVisual(id);
+    });
+  updateReverb();
 }
 
 // ─── PING-PONG CANVAS ────────────────────────────────────────────────────────
@@ -2020,8 +2066,11 @@ function getPresetState() {
     "delaySpreadSlider",
     "delayHiCutSlider",
     "reverbWetSlider",
-    "reverbSizeSlider",
+    "reverbDecaySlider",
+    "reverbPreDlySlider",
+    "reverbDampSlider",
     "reverbShimmerSlider",
+    "reverbSpreadSlider",
   ];
   const selectIds = [
     "dirSelect",
@@ -2290,8 +2339,11 @@ function morphToPreset(id) {
     "delaySpreadSlider",
     "delayHiCutSlider",
     "reverbWetSlider",
-    "reverbSizeSlider",
+    "reverbDecaySlider",
+    "reverbPreDlySlider",
+    "reverbDampSlider",
     "reverbShimmerSlider",
+    "reverbSpreadSlider",
   ];
 
   // Snapshot start values
