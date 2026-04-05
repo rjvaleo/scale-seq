@@ -644,6 +644,8 @@ let reverbPhaserLFO = null;
 let reverbPhaserLFOGain = null;
 let reverbOutAP = [];
 let reverbLimiter = null;
+let reverbShimmerLFO = null;
+let reverbShimmerGain = null;
 let reverbPanL = null;
 let reverbPanR = null;
 
