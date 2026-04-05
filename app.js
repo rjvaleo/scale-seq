@@ -807,7 +807,10 @@ function initAudio() {
     lp.Q.value = 0.5;
     reverbCombHiCutNodes.push(lp);
     const fb = audioCtx.createGain();
-    fb.gain.value = Math.min(0.97, Math.pow(10, (-3 * COMB_DELAYS_S[c]) / initRt60));
+    fb.gain.value = Math.min(
+      0.97,
+      Math.pow(10, (-3 * COMB_DELAYS_S[c]) / initRt60),
+    );
     reverbCombFbGains.push(fb);
     reverbSendGain.connect(dNode);
     dNode.connect(reverbSumGain);
