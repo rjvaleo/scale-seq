@@ -1723,7 +1723,9 @@ function renderScaleList() {
     dragStartY = e.clientY;
     const inp = document.getElementById(inputId);
     dragStartVal = inp ? parseFloat(inp.value) : 0;
-    const group = inp ? (inp.closest(".knob-group") || inp.closest(".lfo-knob")) : null;
+    const group = inp
+      ? inp.closest(".knob-group") || inp.closest(".lfo-knob")
+      : null;
     if (group) {
       const knobEl = group.querySelector(".knob");
       if (knobEl) knobEl.classList.add("active");
