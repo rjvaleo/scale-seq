@@ -872,262 +872,274 @@
         </div>
 
         <!-- DELAY + REVERB ROW -->
-        <div class="synth-row" style="flex-wrap: nowrap; overflow-x: auto">
-          <span class="row-label" style="color: #7fff00">DELAY</span>
-          <div class="knob-group">
-            <span class="knob-label">TIME</span>
-            <select
-              id="delayTimeSelect"
-              onchange="updateDelay()"
-              style="font-size: 10px"
-            >
-              <option value="0.125">1/32</option>
-              <option value="0.25">1/16</option>
-              <option value="0.33333">1/8T</option>
-              <option value="0.5" selected>1/8</option>
-              <option value="0.75">D 1/8</option>
-              <option value="1">1/4</option>
-              <option value="1.33333">1/4T</option>
-              <option value="1.5">D 1/4</option>
-              <option value="2">1/2</option>
-              <option value="3">D 1/2</option>
-              <option value="4">1 BAR</option>
-            </select>
-            <span class="knob-val" id="delayTimeVal" style="font-size: 9px"
-              >250ms</span
-            >
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">FEEDBACK</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'delayFbSlider')"
-              ontouchstart="knobTouchStart(event,'delayFbSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="95"
-              value="35"
-              id="delayFbSlider"
-              oninput="updateDelay()"
-            />
-            <span class="knob-val" id="delayFbVal">35%</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">WET</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'delayWetSlider')"
-              ontouchstart="knobTouchStart(event,'delayWetSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="25"
-              id="delayWetSlider"
-              oninput="updateDelay()"
-            />
-            <span class="knob-val" id="delayWetVal">25%</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">SPREAD</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'delaySpreadSlider')"
-              ontouchstart="knobTouchStart(event,'delaySpreadSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="100"
-              id="delaySpreadSlider"
-              oninput="updateDelay()"
-            />
-            <span class="knob-val" id="delaySpreadVal">100%</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">HI CUT</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'delayHiCutSlider')"
-              ontouchstart="knobTouchStart(event,'delayHiCutSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="75"
-              id="delayHiCutSlider"
-              oninput="updateDelay()"
-            />
-            <span class="knob-val" id="delayHiCutVal">6.3kHz</span>
-          </div>
-          <div class="divider"></div>
-          <div class="knob-group" style="align-items: flex-start">
-            <span class="knob-label">PING-PONG</span>
-            <canvas
-              id="ppCanvas"
-              width="140"
-              height="50"
-              style="background: #0a0c0e; border: 1px solid #1e2830"
-            ></canvas>
-          </div>
+        <div class="synth-row synth-row-scroll">
+          <div
+            style="
+              display: flex;
+              gap: 24px;
+              align-items: center;
+              flex-wrap: nowrap;
+              padding: 0;
+              min-width: max-content;
+            "
+          >
+            <span class="row-label" style="color: #7fff00">DELAY</span>
+            <div class="knob-group">
+              <span class="knob-label">TIME</span>
+              <select
+                id="delayTimeSelect"
+                onchange="updateDelay()"
+                style="font-size: 10px"
+              >
+                <option value="0.125">1/32</option>
+                <option value="0.25">1/16</option>
+                <option value="0.33333">1/8T</option>
+                <option value="0.5" selected>1/8</option>
+                <option value="0.75">D 1/8</option>
+                <option value="1">1/4</option>
+                <option value="1.33333">1/4T</option>
+                <option value="1.5">D 1/4</option>
+                <option value="2">1/2</option>
+                <option value="3">D 1/2</option>
+                <option value="4">1 BAR</option>
+              </select>
+              <span class="knob-val" id="delayTimeVal" style="font-size: 9px"
+                >250ms</span
+              >
+            </div>
+            <div class="knob-group">
+              <span class="knob-label">FEEDBACK</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'delayFbSlider')"
+                ontouchstart="knobTouchStart(event,'delayFbSlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="95"
+                value="35"
+                id="delayFbSlider"
+                oninput="updateDelay()"
+              />
+              <span class="knob-val" id="delayFbVal">35%</span>
+            </div>
+            <div class="knob-group">
+              <span class="knob-label">WET</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'delayWetSlider')"
+                ontouchstart="knobTouchStart(event,'delayWetSlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="100"
+                value="25"
+                id="delayWetSlider"
+                oninput="updateDelay()"
+              />
+              <span class="knob-val" id="delayWetVal">25%</span>
+            </div>
+            <div class="knob-group">
+              <span class="knob-label">SPREAD</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'delaySpreadSlider')"
+                ontouchstart="knobTouchStart(event,'delaySpreadSlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="100"
+                value="100"
+                id="delaySpreadSlider"
+                oninput="updateDelay()"
+              />
+              <span class="knob-val" id="delaySpreadVal">100%</span>
+            </div>
+            <div class="knob-group">
+              <span class="knob-label">HI CUT</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'delayHiCutSlider')"
+                ontouchstart="knobTouchStart(event,'delayHiCutSlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="100"
+                value="75"
+                id="delayHiCutSlider"
+                oninput="updateDelay()"
+              />
+              <span class="knob-val" id="delayHiCutVal">6.3kHz</span>
+            </div>
+            <div class="divider"></div>
+            <div class="knob-group" style="align-items: flex-start">
+              <span class="knob-label">PING-PONG</span>
+              <canvas
+                id="ppCanvas"
+                width="140"
+                height="50"
+                style="background: #0a0c0e; border: 1px solid #1e2830"
+              ></canvas>
+            </div>
 
-          <div class="divider"></div>
-          <span class="row-label" style="color: #c56aff">REVERB</span>
-          <div class="knob-group">
-            <span class="knob-label">WET</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'reverbWetSlider')"
-              ontouchstart="knobTouchStart(event,'reverbWetSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="0"
-              id="reverbWetSlider"
-              oninput="updateReverb()"
-            />
-            <span class="knob-val" id="reverbWetVal">0%</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">DECAY</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'reverbDecaySlider')"
-              ontouchstart="knobTouchStart(event,'reverbDecaySlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="70"
-              id="reverbDecaySlider"
-              oninput="updateReverb()"
-            />
-            <span class="knob-val" id="reverbDecayVal">21.2s</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">PRE-DLY</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'reverbPreDlySlider')"
-              ontouchstart="knobTouchStart(event,'reverbPreDlySlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="10"
-              id="reverbPreDlySlider"
-              oninput="updateReverb()"
-            />
-            <span class="knob-val" id="reverbPreDlyVal">15ms</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">DAMP</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'reverbDampSlider')"
-              ontouchstart="knobTouchStart(event,'reverbDampSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="40"
-              id="reverbDampSlider"
-              oninput="updateReverb()"
-            />
-            <span class="knob-val" id="reverbDampVal">3.6kHz</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">SHIMMER</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'reverbShimmerSlider')"
-              ontouchstart="knobTouchStart(event,'reverbShimmerSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="50"
-              id="reverbShimmerSlider"
-              oninput="updateReverb()"
-            />
-            <span class="knob-val" id="reverbShimmerVal">50%</span>
-          </div>
-          <div class="knob-group">
-            <span class="knob-label">SPREAD</span>
-            <div
-              class="knob"
-              onmousedown="knobDown(event, 'reverbSpreadSlider')"
-              ontouchstart="knobTouchStart(event,'reverbSpreadSlider')"
-            ></div>
-            <input
-              type="range"
-              class="knob-hidden"
-              min="0"
-              max="100"
-              value="80"
-              id="reverbSpreadSlider"
-              oninput="updateReverb()"
-            />
-            <span class="knob-val" id="reverbSpreadVal">80%</span>
-          </div>
-          <div class="divider"></div>
-          <div class="knob-group" style="align-items: flex-start">
-            <span class="knob-label" style="color: #c56aff">PRESET</span>
-            <div style="display: flex; flex-direction: column; gap: 4px">
-              <div style="display: flex; gap: 4px">
-                <button
-                  class="btn"
-                  style="font-size: 9px; padding: 3px 7px"
-                  onclick="setReverbPreset('room')"
-                >
-                  ROOM
-                </button>
-                <button
-                  class="btn"
-                  style="font-size: 9px; padding: 3px 7px"
-                  onclick="setReverbPreset('hall')"
-                >
-                  HALL
-                </button>
-              </div>
-              <div style="display: flex; gap: 4px">
-                <button
-                  class="btn"
-                  style="font-size: 9px; padding: 3px 7px"
-                  onclick="setReverbPreset('cath')"
-                >
-                  CATH
-                </button>
-                <button
-                  class="btn"
-                  style="font-size: 9px; padding: 3px 7px; letter-spacing: 0"
-                  onclick="setReverbPreset('inf')"
-                >
-                  ∞
-                </button>
+            <div class="divider"></div>
+            <span class="row-label" style="color: #c56aff">REVERB</span>
+            <div class="knob-group">
+              <span class="knob-label">WET</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'reverbWetSlider')"
+                ontouchstart="knobTouchStart(event,'reverbWetSlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="100"
+                value="0"
+                id="reverbWetSlider"
+                oninput="updateReverb()"
+              />
+              <span class="knob-val" id="reverbWetVal">0%</span>
+            </div>
+            <div class="knob-group">
+              <span class="knob-label">DECAY</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'reverbDecaySlider')"
+                ontouchstart="knobTouchStart(event,'reverbDecaySlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="100"
+                value="70"
+                id="reverbDecaySlider"
+                oninput="updateReverb()"
+              />
+              <span class="knob-val" id="reverbDecayVal">21.2s</span>
+            </div>
+            <div class="knob-group">
+              <span class="knob-label">PRE-DLY</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'reverbPreDlySlider')"
+                ontouchstart="knobTouchStart(event,'reverbPreDlySlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="100"
+                value="10"
+                id="reverbPreDlySlider"
+                oninput="updateReverb()"
+              />
+              <span class="knob-val" id="reverbPreDlyVal">15ms</span>
+            </div>
+            <div class="knob-group">
+              <span class="knob-label">DAMP</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'reverbDampSlider')"
+                ontouchstart="knobTouchStart(event,'reverbDampSlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="100"
+                value="40"
+                id="reverbDampSlider"
+                oninput="updateReverb()"
+              />
+              <span class="knob-val" id="reverbDampVal">3.6kHz</span>
+            </div>
+            <div class="knob-group">
+              <span class="knob-label">SHIMMER</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'reverbShimmerSlider')"
+                ontouchstart="knobTouchStart(event,'reverbShimmerSlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="100"
+                value="50"
+                id="reverbShimmerSlider"
+                oninput="updateReverb()"
+              />
+              <span class="knob-val" id="reverbShimmerVal">50%</span>
+            </div>
+            <div class="knob-group">
+              <span class="knob-label">SPREAD</span>
+              <div
+                class="knob"
+                onmousedown="knobDown(event, 'reverbSpreadSlider')"
+                ontouchstart="knobTouchStart(event,'reverbSpreadSlider')"
+              ></div>
+              <input
+                type="range"
+                class="knob-hidden"
+                min="0"
+                max="100"
+                value="80"
+                id="reverbSpreadSlider"
+                oninput="updateReverb()"
+              />
+              <span class="knob-val" id="reverbSpreadVal">80%</span>
+            </div>
+            <div class="divider"></div>
+            <div class="knob-group" style="align-items: flex-start">
+              <span class="knob-label" style="color: #c56aff">PRESET</span>
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <div style="display: flex; gap: 4px">
+                  <button
+                    class="btn"
+                    style="font-size: 9px; padding: 3px 7px"
+                    onclick="setReverbPreset('room')"
+                  >
+                    ROOM
+                  </button>
+                  <button
+                    class="btn"
+                    style="font-size: 9px; padding: 3px 7px"
+                    onclick="setReverbPreset('hall')"
+                  >
+                    HALL
+                  </button>
+                </div>
+                <div style="display: flex; gap: 4px">
+                  <button
+                    class="btn"
+                    style="font-size: 9px; padding: 3px 7px"
+                    onclick="setReverbPreset('cath')"
+                  >
+                    CATH
+                  </button>
+                  <button
+                    class="btn"
+                    style="font-size: 9px; padding: 3px 7px; letter-spacing: 0"
+                    onclick="setReverbPreset('inf')"
+                  >
+                    ∞
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+          <!-- /inner scroll wrapper -->
         </div>
 
         <!-- SCALE DISPLAY -->
