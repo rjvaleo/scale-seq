@@ -818,7 +818,7 @@ function initAudio() {
     reverbCombHiCutNodes.push(lp);
     const fb = audioCtx.createGain();
     fb.gain.value = Math.min(
-      0.97,
+      0.8,
       Math.pow(10, (-3 * COMB_DELAYS_S[c]) / initRt60),
     );
     reverbCombFbGains.push(fb);
@@ -1341,7 +1341,7 @@ function updateReverb() {
   for (let c = 0; c < COMB_DELAYS_S.length; c++) {
     if (reverbCombFbGains[c])
       reverbCombFbGains[c].gain.value = Math.min(
-        0.97,
+        0.8,
         Math.pow(10, (-3 * COMB_DELAYS_S[c]) / rt60),
       );
     if (reverbCombHiCutNodes[c])
