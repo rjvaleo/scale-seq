@@ -981,6 +981,65 @@
           </div>
         </div>
 
+        <!-- REVERB ROW -->
+        <div class="synth-row">
+          <span class="row-label" style="color: #c56aff">REVERB</span>
+          <div class="knob-group">
+            <span class="knob-label">WET</span>
+            <div
+              class="knob"
+              onmousedown="knobDown(event, 'reverbWetSlider')"
+              ontouchstart="knobTouchStart(event,'reverbWetSlider')"
+            ></div>
+            <input
+              type="range"
+              class="knob-hidden"
+              min="0"
+              max="100"
+              value="0"
+              id="reverbWetSlider"
+              oninput="updateReverb()"
+            />
+            <span class="knob-val" id="reverbWetVal">0%</span>
+          </div>
+          <div class="knob-group">
+            <span class="knob-label">SIZE</span>
+            <div
+              class="knob"
+              onmousedown="knobDown(event, 'reverbSizeSlider')"
+              ontouchstart="knobTouchStart(event,'reverbSizeSlider')"
+            ></div>
+            <input
+              type="range"
+              class="knob-hidden"
+              min="0"
+              max="100"
+              value="70"
+              id="reverbSizeSlider"
+              oninput="updateReverb()"
+            />
+            <span class="knob-val" id="reverbSizeVal">70%</span>
+          </div>
+          <div class="knob-group">
+            <span class="knob-label">SHIMMER</span>
+            <div
+              class="knob"
+              onmousedown="knobDown(event, 'reverbShimmerSlider')"
+              ontouchstart="knobTouchStart(event,'reverbShimmerSlider')"
+            ></div>
+            <input
+              type="range"
+              class="knob-hidden"
+              min="0"
+              max="100"
+              value="50"
+              id="reverbShimmerSlider"
+              oninput="updateReverb()"
+            />
+            <span class="knob-val" id="reverbShimmerVal">50%</span>
+          </div>
+        </div>
+
         <!-- SCALE DISPLAY -->
         <div class="scale-display">
           <div style="display: flex; align-items: baseline; gap: 12px">
