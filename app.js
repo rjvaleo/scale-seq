@@ -1323,6 +1323,7 @@ function updateDelay() {
 
 // ─── REVERB CONTROLS ─────────────────────────────────────────────────────────
 function updateReverb() {
+  if (!document.getElementById("reverbWetSlider")) return; // UI removed
   const wetV = parseInt(document.getElementById("reverbWetSlider").value);
   const decV = parseInt(document.getElementById("reverbDecaySlider").value);
   const pdV = parseInt(document.getElementById("reverbPreDlySlider").value);
