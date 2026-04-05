@@ -1,7 +1,7 @@
 # SCALE SEQUENCER / TUNING MODULE AND SYNTH PROTOTYPE
 
-![GitHub Pages](https://img.shields.io/github/deployments/rjvaleo/scale-seq/github-pages?label=GitHub%20Pages&logo=github)
-![License](https://img.shields.io/github/license/rjvaleo/scale-seq)
+![GitHub Pages](https://img.shields.io/github/deployments/rjvaleo/scale-sequencer/github-pages?label=GitHub%20Pages&logo=github)
+![License](https://img.shields.io/github/license/rjvaleo/scale-sequencer)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?logo=javascript&logoColor=black)
 ![Web Audio API](https://img.shields.io/badge/Web%20Audio%20API-native-4A90D9?logo=webaudio)
 ![HTML5](https://img.shields.io/badge/HTML5-semantic-E34F26?logo=html5&logoColor=white)
@@ -11,7 +11,7 @@
 
 A browser-based microtonal step sequencer and synthesizer with true-pitch tuning, built entirely on the Web Audio API — no frameworks, no build tools, no dependencies. Runs offline and deploys to GitHub Pages.
 
-**[→ Live Demo](https://rjvaleo.github.io/scale-seq/)**
+**[→ Live Demo](https://rjvaleo.github.io/scale-sequencer/)**
 
 ---
 
@@ -56,6 +56,18 @@ A browser-based microtonal step sequencer and synthesizer with true-pitch tuning
 - **Stereo Spread**: 0–100%
 - **Hi-Cut filter** on the feedback path: 200Hz–20kHz
 - Live ping-pong canvas showing delay path and timing
+
+### Reverb
+
+- **Cathedral-scale Schroeder reverb** running in parallel with the delay
+- **Algorithm**: 6 parallel comb filters (each a `delay → lowpass damp → feedback gain` loop) → 2 all-pass diffusers → stereo spread panners
+- **Decay**: 0.5s–30s RT60 — true cathedral scale
+- **Pre-Delay**: 0–150ms — adds sense of physical distance before the tail
+- **Damp**: 500Hz–20kHz hi-cut on every comb — controls brightness of the tail
+- **Shimmer**: slow triangle LFO sweeps the output diffuser frequency for a lush, animated quality
+- **Spread**: stereo panner pair after the diffusers (0 = mono → 100% = wide)
+- **One-click macro presets**: ROOM, HALL, CATH (cathedral), ∞ (infinite wash)
+- Unconditionally stable: all feedback gain values hard-capped at 0.97; no modulation inside any feedback loop
 
 ### Scale Library — 80+ Tuning Systems
 
@@ -114,6 +126,12 @@ All controls are **rotary knobs** (drag up = increase, drag down = decrease). To
 | Delay       | WET                           | 0–100%            |                                    |
 | Delay       | SPREAD                        | 0–100%            | Stereo separation                  |
 | Delay       | HI CUT                        | 200Hz–20kHz       | Logarithmic, feedback path         |
+| Reverb      | WET                           | 0–100%            | Mix level into master              |
+| Reverb      | DECAY                         | 0.5s–30s          | RT60 — tail length                 |
+| Reverb      | PRE-DLY                       | 0–150ms           | Pre-delay before reverb onset      |
+| Reverb      | DAMP                          | 500Hz–20kHz       | Hi-cut on all comb feedback paths  |
+| Reverb      | SHIMMER                       | 0–100%            | LFO depth on output diffuser       |
+| Reverb      | SPREAD                        | 0–100%            | Stereo width of wet signal         |
 
 ---
 
@@ -128,7 +146,7 @@ The preset bank is local by default. To bundle presets with the deployed app:
 5. Any visitor with an empty preset bank will auto-load your presets on first visit
 
 ```
-scale-seq/
+scale-sequencer/
 ├── index.html
 ├── app.js
 ├── style.css
@@ -157,11 +175,15 @@ presets.json    Optional default preset bank (committed to repo)
 OscillatorNode (osc)
     └─► GainNode (env — ADSR amplitude)
             └─► BiquadFilter (filterNode — 12dB LP)
-                    ├─► GainNode (delayDryGain) ──────────────────────► GainNode (masterGain) ──► destination
-                    └─► DelayNode (delayL) ◄──── cross-feed ────────── DelayNode (delayR)
-                             └─► StereoPanner (panL, -spread)               └─► StereoPanner (panR, +spread)
-                                      └─► GainNode (delayWetGain) ──────────────────────┘
-                                               └─────────────────────────────────────────────► masterGain
+                    ├─► GainNode (delayDryGain) ─────────────────────────────────────────────────► GainNode (masterGain) ──► destination
+                    ├─► DelayNode (delayL) ◄──── cross-feed ──────────────────────────────────── DelayNode (delayR)
+                    │        └─► StereoPanner (panL)                                                   └─► StereoPanner (panR)
+                    │                 └─► GainNode (delayWetGain) ──────────────────────────────────────────────────────► masterGain
+                    └─► DelayNode (preDelay) ──► GainNode (reverbSend, wet)
+                             └─► 6× [DelayNode → BiquadFilter (damp LP) → GainNode (fb) ↩]
+                                      └─► GainNode (reverbSum) ──► AllPass[0] → AllPass[1]
+                                                                          └─► StereoPanner (L) ──► GainNode (reverbWetGain) ──► masterGain
+                                                                          └─► StereoPanner (R) ──┘
 ```
 
 - LFO 1 output → GainNode (lfoGain) → `filterNode.frequency`

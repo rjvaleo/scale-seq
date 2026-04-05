@@ -643,6 +643,7 @@ let reverbAPFbNodes = [];
 let reverbPhaserLFO = null;
 let reverbPhaserLFOGain = null;
 let reverbOutAP = [];
+let reverbLimiter = null;
 let reverbPanL = null;
 let reverbPanR = null;
 
@@ -752,16 +753,24 @@ function initAudio() {
   filterNode.connect(reverbPreDelayNode);
 
   reverbSendGain = audioCtx.createGain();
-  reverbSendGain.gain.value = reverbWet;
+  reverbSendGain.gain.value = 0.12; // fixed small send — WET is on the OUTPUT, not here
   reverbPreDelayNode.connect(reverbSendGain);
 
   reverbWetGain = audioCtx.createGain();
-  reverbWetGain.gain.value = 0.5; // ×0.5 — two panner paths sum here
+  reverbWetGain.gain.value = reverbWet; // WET slider controls output mix level
   reverbWetGain.connect(masterGain);
   reverbWetGain.connect(captureDestNode);
 
+  // Limiter after comb bank sum — safety ceiling before output
+  reverbLimiter = audioCtx.createDynamicsCompressor();
+  reverbLimiter.threshold.value = -6;
+  reverbLimiter.knee.value = 3;
+  reverbLimiter.ratio.value = 20;
+  reverbLimiter.attack.value = 0.001;
+  reverbLimiter.release.value = 0.15;
+
   reverbSumGain = audioCtx.createGain();
-  reverbSumGain.gain.value = 0.18; // normalise 6 parallel combs
+  reverbSumGain.gain.value = 0.06; // comb resonance gain ~33× per comb; 6×33×0.06≈12 → limiter handles peaks
 
   // Two output allpass diffusers (outside feedback — safe)
   reverbOutAP[0] = audioCtx.createBiquadFilter();
@@ -772,7 +781,8 @@ function initAudio() {
   reverbOutAP[1].type = "allpass";
   reverbOutAP[1].frequency.value = 2234;
   reverbOutAP[1].Q.value = 0.7;
-  reverbSumGain.connect(reverbOutAP[0]);
+  reverbSumGain.connect(reverbLimiter);
+  reverbLimiter.connect(reverbOutAP[0]);
   reverbOutAP[0].connect(reverbOutAP[1]);
 
   // Stereo spread
@@ -1319,7 +1329,7 @@ function updateReverb() {
   reverbDamp = dampV / 100;
   reverbShimmer = shimV / 100;
   reverbSpread = sprV / 100;
-  if (reverbSendGain) reverbSendGain.gain.value = reverbWet;
+  if (reverbWetGain) reverbWetGain.gain.value = reverbWet; // WET on output
   if (reverbPreDelayNode && audioCtx)
     reverbPreDelayNode.delayTime.setTargetAtTime(
       reverbPreDelay * 0.15,
