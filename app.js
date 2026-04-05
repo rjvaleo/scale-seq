@@ -625,7 +625,7 @@ const KEY_FOLLOW_REF_MIDI = 60;
 
 // ─── REVERB STATE ────────────────────────────────────────────────────────────
 const COMB_DELAYS_S = [0.0833, 0.1009, 0.1151, 0.1271, 0.1493, 0.1913];
-let reverbWet = 0.0;
+let reverbWet = 0.6; // matches HTML slider default of 60%
 let reverbDecay = 0.7; // 0..1 → RT60 0.5s..30s
 let reverbPreDelay = 0.1; // 0..1 → 0..150ms
 let reverbDamp = 0.4; // 0..1 → 500Hz..20kHz comb hi-cut
@@ -747,6 +747,9 @@ function initAudio() {
   delayFbGainRL.connect(delayL);
 
   // ── Cathedral Reverb (parallel with delay) ───────────────────────────────
+  // DISABLED — TODO: revisit gain staging and re-enable
+  // To re-enable: remove the surrounding /* */ block comment
+  /*
   // Plain Schroeder: 6 parallel comb filters → 2 allpass diffusers → stereo spread.
   // NO modulation inside any feedback path — unconditionally stable.
   // Shimmer: single slow LFO on the OUTPUT allpass only (not in any feedback loop).
@@ -755,7 +758,7 @@ function initAudio() {
   filterNode.connect(reverbPreDelayNode);
 
   reverbSendGain = audioCtx.createGain();
-  reverbSendGain.gain.value = 0.12; // fixed small send — WET is on the OUTPUT, not here
+  reverbSendGain.gain.value = 1.0; // parallel send — full level, doesn't affect dry path
   reverbPreDelayNode.connect(reverbSendGain);
 
   reverbWetGain = audioCtx.createGain();
@@ -763,16 +766,16 @@ function initAudio() {
   reverbWetGain.connect(masterGain);
   reverbWetGain.connect(captureDestNode);
 
-  // Limiter after comb bank sum — safety ceiling before output
+  // Soft limiter after comb bank sum — prevents runaway, preserves tail character
   reverbLimiter = audioCtx.createDynamicsCompressor();
-  reverbLimiter.threshold.value = -6;
-  reverbLimiter.knee.value = 3;
-  reverbLimiter.ratio.value = 20;
-  reverbLimiter.attack.value = 0.001;
-  reverbLimiter.release.value = 0.15;
+  reverbLimiter.threshold.value = -3; // -3 dBFS, not -6
+  reverbLimiter.knee.value = 6; // soft knee
+  reverbLimiter.ratio.value = 6; // 6:1 — softens, not bricks
+  reverbLimiter.attack.value = 0.005; // 5 ms — doesn't suppress transient onset
+  reverbLimiter.release.value = 0.4; // 400 ms — lets tail breathe
 
   reverbSumGain = audioCtx.createGain();
-  reverbSumGain.gain.value = 0.06; // comb resonance gain ~33× per comb; 6×33×0.06≈12 → limiter handles peaks
+  reverbSumGain.gain.value = 0.5; // raised from 0.2 — first echoes now ~0.5 amplitude at limiter input
 
   // Two output allpass diffusers (outside feedback — safe)
   reverbOutAP[0] = audioCtx.createBiquadFilter();
@@ -831,6 +834,7 @@ function initAudio() {
     lp.connect(fb);
     fb.connect(dNode);
   }
+  */
 
   // Initialize all 4 LFO oscillators and connect to their targets
   lfos.forEach((lfo, i) => {
