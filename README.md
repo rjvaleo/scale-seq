@@ -1,4 +1,4 @@
-# SCALE SEQ / TUNING PROTO
+# SCALE SEQUENCER / TUNING MODULE AND SYNTH PROTOTYPE
 
 ![GitHub Pages](https://img.shields.io/github/deployments/rjvaleo/scale-seq/github-pages?label=GitHub%20Pages&logo=github)
 ![License](https://img.shields.io/github/license/rjvaleo/scale-seq)
