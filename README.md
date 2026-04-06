@@ -11,6 +11,9 @@
 
 A browser-based microtonal step sequencer and synthesizer with true-pitch tuning, built entirely on the Web Audio API — no frameworks, no build tools, no dependencies. Runs offline and deploys to GitHub Pages.
 
+<img width="1522" height="833" alt="Screenshot 2026-04-06 at 10 30 12 AM" src="https://github.com/user-attachments/assets/234ba1f2-4f5a-4707-b5f5-1bbbd8f1f990" />
+
+
 **[→ Live Demo](https://rjvaleo.github.io/scale-sequencer/)**
 
 ---
