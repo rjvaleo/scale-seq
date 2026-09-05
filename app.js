@@ -571,7 +571,7 @@ let pulseWidth = 0.5; // base duty cycle for pulse wave
 let currentPW = 0.5; // LFO-modulated pulse width
 
 // ─── LFO STATE (4 modular LFOs) ──────────────────────────────────────────────
-const LFO_COLORS = ["#ff6b35", "#00e5ff", "#a0ff60", "#ff60b8"];
+const LFO_COLORS = ["#ff6b35", "#00e5ff", "#a0ff60"];
 const lfos = [
   {
     rate: 1.0,
@@ -589,17 +589,6 @@ const lfos = [
     depth: 0.25,
     wave: "sine",
     target: "pw",
-    phase: 0,
-    animPhase: 0,
-    animId: null,
-    osc: null,
-    gainNode: null,
-  },
-  {
-    rate: 0.55,
-    depth: 0.0,
-    wave: "sine",
-    target: "",
     phase: 0,
     animPhase: 0,
     animId: null,
@@ -1832,13 +1821,15 @@ function renderScaleDegrees() {
   const scale = SCALES[selectedScaleIdx];
   const container = document.getElementById("scaleDegrees");
   container.innerHTML = "";
+  // two rows, row-major: columns adapt to the scale so height never grows
+  container.style.gridTemplateColumns = `repeat(${Math.ceil(scale.cents.length / 2)}, max-content)`;
   scale.cents.forEach((c, i) => {
     const hz = centsToHz(rootHz, c);
     const chip = document.createElement("div");
     chip.className = "degree-chip" + (i === 0 ? " root-chip" : "");
     chip.innerHTML = `
 <div class="degree-num">DEG ${i + 1}</div>
-<div style="font-size:11px; color:${i === 0 ? "var(--accent)" : "var(--text)"}">${c === 0 ? "ROOT" : c % 1200 === 0 ? "OCT" : c.toFixed(1) + "¢"}</div>
+<div style="font-size:10px; color:${i === 0 ? "var(--accent)" : "var(--text)"}">${c === 0 ? "ROOT" : c % 1200 === 0 ? "OCT" : c.toFixed(1) + "¢"}</div>
 <div class="degree-hz">${hz.toFixed(1)}Hz</div>
     `;
     chip.onclick = () => {
@@ -2208,8 +2199,6 @@ function getPresetState() {
     "lfo2DepthSlider",
     "lfo3RateSlider",
     "lfo3DepthSlider",
-    "lfo4RateSlider",
-    "lfo4DepthSlider",
     "pwSlider",
     "delayFbSlider",
     "delayWetSlider",
@@ -2234,8 +2223,6 @@ function getPresetState() {
     "lfo2TargetSelect",
     "lfo3WaveSelect",
     "lfo3TargetSelect",
-    "lfo4WaveSelect",
-    "lfo4TargetSelect",
     "delayTimeSelect",
     "tapeSpeedSelect",
   ];
@@ -2482,8 +2469,6 @@ function morphToPreset(id) {
     "lfo2DepthSlider",
     "lfo3RateSlider",
     "lfo3DepthSlider",
-    "lfo4RateSlider",
-    "lfo4DepthSlider",
     "pwSlider",
     "delayFbSlider",
     "delayWetSlider",
@@ -2524,8 +2509,6 @@ function morphToPreset(id) {
     "lfo2TargetSelect",
     "lfo3WaveSelect",
     "lfo3TargetSelect",
-    "lfo4WaveSelect",
-    "lfo4TargetSelect",
     "delayTimeSelect",
     "tapeSpeedSelect",
   ];

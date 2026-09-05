@@ -28,8 +28,6 @@ const PERF_SLIDERS = [
   "lfo2DepthSlider",
   "lfo3RateSlider",
   "lfo3DepthSlider",
-  "lfo4RateSlider",
-  "lfo4DepthSlider",
   "pwSlider",
   "delayFbSlider",
   "delayWetSlider",
@@ -48,8 +46,6 @@ const PERF_SELECTS = [
   "lfo2TargetSelect",
   "lfo3WaveSelect",
   "lfo3TargetSelect",
-  "lfo4WaveSelect",
-  "lfo4TargetSelect",
   "delayTimeSelect",
   "tapeSpeedSelect",
 ];
@@ -77,7 +73,6 @@ function perfLaneColor(id) {
   if (id.startsWith("lfo1")) return "#ff6b35";
   if (id.startsWith("lfo2")) return "#00e5ff";
   if (id.startsWith("lfo3")) return "#a0ff60";
-  if (id.startsWith("lfo4")) return "#ff60b8";
   if (id.startsWith("delay")) return "#7fff00";
   if (id.startsWith("bpm") || id.startsWith("steps")) return "#ff60b8";
   if (id.startsWith("f") || id.startsWith("keyFollow")) return "#ff6b35";
