@@ -213,13 +213,16 @@ input[type="range"]::-webkit-slider-thumb {
   letter-spacing: 1px;
 }
 
-/* RIGHT PANEL */
+/* RIGHT PANEL — scrolls vertically so every module stays reachable when the
+   rows outgrow the window */
 .right-panel {
   display: flex;
   flex-direction: column;
-  overflow-y: hidden;
+  overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dim) var(--bg2);
 }
 
 /* Horizontally-scrollable synth row (delay+reverb) */
@@ -230,6 +233,17 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* SYNTH CONTROLS */
+/* Fixed control rows must never be crushed when vertical space runs out —
+   only the seq-panel flexes; overflow clips at the bottom instead. */
+.synth-row,
+.synth-row-scroll,
+.scale-display,
+.keyboard-panel,
+.waveform-panel,
+.status-bar,
+.perf-panel {
+  flex-shrink: 0;
+}
 .synth-row {
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
@@ -392,7 +406,9 @@ select:focus {
 /* SEQUENCER */
 .seq-panel {
   flex: 1;
-  min-height: 0;
+  /* the note window always keeps at least one full, usable step row —
+     when space runs out, panels below it clip instead */
+  min-height: 150px;
   padding: 16px 20px;
   display: flex;
   flex-direction: column;
@@ -749,6 +765,132 @@ canvas.env-canvas {
 }
 .knob-group-inline .knob-label {
   white-space: nowrap;
+}
+
+/* ── PERFORMANCE ─────────────────────────────────────────────────────────── */
+.perf-panel {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+}
+.perf-header {
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 20px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.perf-header-info {
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+.perf-transport {
+  padding: 6px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.perf-rec-btn {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+.perf-rec-btn.recording {
+  border-color: #ff3333;
+  color: #ff3333;
+  animation: rec-pulse 1s ease-in-out infinite;
+}
+.perf-gen-btn {
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+.perf-gen-btn:hover {
+  background: var(--accent3);
+  color: var(--bg);
+}
+.perf-keep-btn {
+  border-color: var(--accent3);
+  color: var(--accent3);
+}
+.perf-cut-btn {
+  border-color: var(--accent2);
+  color: var(--accent2);
+}
+.perf-brain-btn.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.perf-select {
+  max-width: 220px;
+}
+.perf-sel-info {
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+#perfCanvas {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 6px 20px 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  cursor: crosshair;
+}
+.perf-resize,
+.seq-resize {
+  height: 7px;
+  cursor: ns-resize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.perf-resize {
+  margin: 0 20px 2px;
+}
+.perf-resize::after,
+.seq-resize::after {
+  content: "";
+  width: 48px;
+  height: 2px;
+  background: var(--dim);
+}
+.perf-resize:hover::after,
+.seq-resize:hover::after {
+  background: var(--accent);
+}
+.perf-brain {
+  display: flex;
+  gap: 8px;
+  padding: 0 20px 6px;
+}
+.perf-brain canvas {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+.perf-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 20px 6px;
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+}
+.perf-pos {
+  font-family: "Teko", sans-serif;
+  font-size: 16px;
+  letter-spacing: 3px;
+  color: var(--accent);
 }
 
 /* ── CAPTURE ─────────────────────────────────────────────────────────────── */

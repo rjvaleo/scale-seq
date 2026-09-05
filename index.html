@@ -908,6 +908,24 @@
               >
             </div>
             <div class="knob-group">
+              <span class="knob-label">TAPE</span>
+              <select
+                id="tapeSpeedSelect"
+                onchange="updateTapeSpeed()"
+                style="font-size: 10px"
+              >
+                <option value="studio30">30 IPS</option>
+                <option value="studio15">15 IPS</option>
+                <option value="studio75" selected>7.5 IPS</option>
+                <option value="studio375">3.75 IPS</option>
+                <option value="cassette">CASSETTE 1⅞</option>
+                <option value="micro">MICRO 15/16</option>
+              </select>
+              <span class="knob-val" id="tapeSpeedVal" style="font-size: 9px"
+                >7.5 IPS</span
+              >
+            </div>
+            <div class="knob-group">
               <span class="knob-label">FEEDBACK</span>
               <div
                 class="knob"
@@ -1013,6 +1031,120 @@
         <div class="seq-panel">
           <div class="step-grid" id="stepGrid"></div>
         </div>
+        <div
+          class="seq-resize"
+          onmousedown="seqResizeStart(event)"
+          ondblclick="seqResizeReset()"
+          title="DRAG TO RESIZE · DOUBLE-CLICK TO RESET"
+        ></div>
+
+        <!-- PERFORMANCE -->
+        <div class="perf-panel">
+          <div class="perf-header" onclick="perfToggleCollapse()">
+            <span
+              ><span id="perfCollapseIcon">▸</span> PERFORMANCE —
+              <span id="perfName">NO TAKE</span></span
+            >
+            <span class="perf-header-info" id="perfHeaderInfo">—</span>
+          </div>
+          <div id="perfBody" style="display: none">
+            <div class="perf-transport">
+              <button class="btn perf-rec-btn" id="perfRecBtn" onclick="perfToggleRec()">
+                ⏺ REC PERF
+              </button>
+              <button class="btn" id="perfPlayBtn" onclick="perfTogglePlay()">
+                ▶ PLAY PERF
+              </button>
+              <button class="btn" onclick="perfStop()">⏹</button>
+              <div class="divider"></div>
+              <button class="btn perf-gen-btn" onclick="perfGenerate()">
+                ◌ GENERATE
+              </button>
+              <div class="knob-group-inline">
+                <span class="knob-label">VARIATION</span>
+                <div
+                  class="knob knob-sm"
+                  onmousedown="knobDown(event, 'perfVarSlider')"
+                  ontouchstart="knobTouchStart(event,'perfVarSlider')"
+                ></div>
+                <input
+                  type="range"
+                  class="knob-hidden"
+                  min="0"
+                  max="100"
+                  value="35"
+                  id="perfVarSlider"
+                  oninput="updatePerfVar()"
+                />
+                <span class="knob-val" id="perfVarVal">35%</span>
+              </div>
+              <div class="divider"></div>
+              <select
+                class="preset-select perf-select"
+                id="perfSelect"
+                onchange="perfLoad(this.value)"
+              >
+                <option value="">— takes —</option>
+              </select>
+              <button class="btn preset-del-btn" onclick="perfDeleteSelected()">
+                DEL
+              </button>
+              <div class="divider"></div>
+              <span class="perf-sel-info" id="perfSelInfo"></span>
+              <button
+                class="btn perf-keep-btn"
+                id="perfKeepBtn"
+                style="display: none"
+                onclick="perfKeepGesture()"
+              >
+                KEEP
+              </button>
+              <button
+                class="btn perf-cut-btn"
+                id="perfCutBtn"
+                style="display: none"
+                onclick="perfCutGesture()"
+              >
+                CUT
+              </button>
+              <button
+                class="btn perf-gen-btn"
+                id="perfRerollBtn"
+                style="display: none"
+                onclick="perfReroll()"
+              >
+                ◌ REROLL
+              </button>
+              <button
+                class="btn perf-brain-btn"
+                id="perfBrainBtn"
+                onclick="perfToggleBrain()"
+              >
+                BRAIN
+              </button>
+            </div>
+            <canvas id="perfCanvas" height="120"></canvas>
+            <div
+              class="perf-resize"
+              onmousedown="perfResizeStart(event)"
+              ondblclick="perfResizeReset()"
+              title="DRAG TO RESIZE · DOUBLE-CLICK TO RESET"
+            ></div>
+            <div class="perf-brain" id="perfBrain" style="display: none">
+              <canvas id="brainFormCanvas" height="100"></canvas>
+              <canvas id="brainTransCanvas" height="100"></canvas>
+              <canvas id="brainTimingCanvas" height="100"></canvas>
+              <canvas id="brainRangeCanvas" height="100"></canvas>
+            </div>
+            <div class="perf-status-row">
+              <span id="perfStatus"
+                >READY — ⏺ REC PERF CAPTURES KNOB MOVES, SWITCHES, SCALE AND
+                STEP EDITS WHILE YOU PLAY</span
+              >
+              <span class="perf-pos" id="perfPos">— · —</span>
+            </div>
+          </div>
+        </div>
 
         <!-- 88-KEY STRIP -->
         <div class="keyboard-panel">
@@ -1035,5 +1167,6 @@
     </div>
 
     <script src="app.js"></script>
+    <script src="performance.js"></script>
   </body>
 </html>

@@ -562,6 +562,11 @@ let playingStepIdx = -1;
 let filterCutoff = 2046; // Hz (log-scale, slider default=67)
 let filterRes = 2.09; // Q factor
 let filterNode = null;
+// Base cutoff and per-note filter envelope live on separate ConstantSource
+// nodes summed into filterNode.frequency, so the knob and the ADSR never
+// cancel each other's automation (soft takeover — no jump on grab/release).
+let cutoffBaseNode = null;
+let filterEnvNode = null;
 let pulseWidth = 0.5; // base duty cycle for pulse wave
 let currentPW = 0.5; // LFO-modulated pulse width
 
@@ -692,8 +697,17 @@ function initAudio() {
   masterGain.gain.value = volume * 0.3;
   filterNode = audioCtx.createBiquadFilter();
   filterNode.type = "lowpass";
-  filterNode.frequency.value = filterCutoff;
+  // frequency is driven entirely by the summed inputs below
+  filterNode.frequency.value = 0;
   filterNode.Q.value = filterRes;
+  cutoffBaseNode = audioCtx.createConstantSource();
+  cutoffBaseNode.offset.value = filterCutoff;
+  cutoffBaseNode.connect(filterNode.frequency);
+  cutoffBaseNode.start();
+  filterEnvNode = audioCtx.createConstantSource();
+  filterEnvNode.offset.value = 0;
+  filterEnvNode.connect(filterNode.frequency);
+  filterEnvNode.start();
   masterGain.connect(audioCtx.destination);
 
   // ── Capture destination (MediaRecorder taps here) ────────────────────────
@@ -706,10 +720,12 @@ function initAudio() {
   filterNode.connect(delayDryGain);
   delayDryGain.connect(masterGain);
 
-  // Ping-pong delay wet path
+  // Ping-pong delay wet path — a tape-echo model: ONE feedback loop, and the
+  // delay time is its playback speed. Retiming glides that speed, re-pitching
+  // whatever is already circulating; the loop itself is never reset.
   delayL = audioCtx.createDelay(4.0);
   delayR = audioCtx.createDelay(4.0);
-  const dTime = (60 / bpm) * delaySubdiv;
+  const dTime = Math.min(4, (60 / bpm) * delaySubdiv);
   delayL.delayTime.value = dTime;
   delayR.delayTime.value = dTime;
   delayPanL = audioCtx.createStereoPanner();
@@ -899,12 +915,18 @@ function playNote(freq, time) {
     Math.max(20, baseCutoff + filterADSRamt * maxDelta * fs),
   );
 
-  filterNode.frequency.cancelScheduledValues(time);
-  filterNode.frequency.setValueAtTime(baseCutoff, time);
-  filterNode.frequency.linearRampToValueAtTime(peakCutoff, time + fa);
-  filterNode.frequency.linearRampToValueAtTime(susCutoff, time + fa + fd);
-  filterNode.frequency.setValueAtTime(susCutoff, time + noteDur);
-  filterNode.frequency.linearRampToValueAtTime(baseCutoff, time + noteDur + fr);
+  // Automate the envelope as an offset relative to the knob's base cutoff.
+  // cutoffBaseNode supplies the base live, so knob moves mid-note shift the
+  // whole sweep smoothly instead of cancelling it.
+  const baseDelta = baseCutoff - filterCutoff; // key-follow offset
+  const peakDelta = peakCutoff - filterCutoff;
+  const susDelta = susCutoff - filterCutoff;
+  filterEnvNode.offset.cancelScheduledValues(time);
+  filterEnvNode.offset.setValueAtTime(baseDelta, time);
+  filterEnvNode.offset.linearRampToValueAtTime(peakDelta, time + fa);
+  filterEnvNode.offset.linearRampToValueAtTime(susDelta, time + fa + fd);
+  filterEnvNode.offset.setValueAtTime(susDelta, time + noteDur);
+  filterEnvNode.offset.linearRampToValueAtTime(baseDelta, time + noteDur + fr);
 }
 
 // ─── SCALE COMPUTATION ───────────────────────────────────────────────────────
@@ -1094,10 +1116,52 @@ function stopSeq() {
 }
 
 // ─── CONTROLS ────────────────────────────────────────────────────────────────
+// Tempo slew: the knob sets bpmTarget; the live bpm glides toward it — a short
+// hold after the last knob move, then a rate-limited exponential ramp — so the
+// sequencer speeds up/slows down like a machine catching up, never jumping.
+let bpmTarget = 120;
+let bpmSlewTimer = null;
+let bpmSlewHoldUntil = 0;
+const BPM_SLEW_DELAY_S = 0.12; // lag after the last knob move before gliding
+const BPM_SLEW_TAU = 0.45; // exponential smoothing constant
+const BPM_SLEW_MAX_RATE = 90; // BPM per second cap on big jumps
+
 function updateBPM(v) {
-  bpm = parseInt(v);
-  document.getElementById("bpmVal").textContent = v;
-  updateDelay();
+  bpmTarget = parseInt(v);
+  bpmSlewHoldUntil = performance.now() / 1000 + BPM_SLEW_DELAY_S;
+  // the delay loop's speed ramps as ONE audio-thread automation — the slew
+  // ticker below never touches it, so there is no control-rate stepping
+  tapeGlideDelayTime(BPM_SLEW_DELAY_S);
+  startBpmSlew();
+}
+
+function syncTempo() {
+  // displays only — audio-side tempo followers schedule their own ramps
+  document.getElementById("bpmVal").textContent = Math.round(bpm);
+  if (delayL)
+    document.getElementById("delayTimeVal").textContent =
+      Math.round(delayL.delayTime.value * 1000) + "ms";
+}
+
+function startBpmSlew() {
+  if (bpmSlewTimer) return;
+  let last = performance.now() / 1000;
+  bpmSlewTimer = setInterval(() => {
+    const now = performance.now() / 1000;
+    const dt = Math.max(0.001, now - last);
+    last = now;
+    if (now < bpmSlewHoldUntil) return;
+    let step = (bpmTarget - bpm) * (1 - Math.exp(-dt / BPM_SLEW_TAU));
+    const maxStep = BPM_SLEW_MAX_RATE * dt;
+    step = Math.max(-maxStep, Math.min(maxStep, step));
+    bpm += step;
+    if (Math.abs(bpmTarget - bpm) < 0.05) bpm = bpmTarget;
+    syncTempo();
+    if (bpm === bpmTarget) {
+      clearInterval(bpmSlewTimer);
+      bpmSlewTimer = null;
+    }
+  }, 30);
 }
 
 function updateSteps(v) {
@@ -1162,13 +1226,10 @@ function updateFilter() {
   filterRes = 0.1 + (rv / 100) * 19.9;
   if (filterNode) {
     const now = audioCtx.currentTime;
-    // cancelAndHoldAtTime captures the current mid-ramp value rather than
-    // snapping to the intrinsic value, preventing an audible jump when the
-    // knob is touched during a filter ADSR sweep.
-    filterNode.frequency.cancelAndHoldAtTime(now);
-    // setTargetAtTime smoothly eases to the new cutoff over ~15ms so that
-    // rapid knob movement doesn't produce clicks.
-    filterNode.frequency.setTargetAtTime(filterCutoff, now, 0.015);
+    // Only the base cutoff moves; the per-note envelope on filterEnvNode
+    // keeps running untouched, so grabbing the knob mid-sweep can't jump.
+    cutoffBaseNode.offset.cancelAndHoldAtTime(now);
+    cutoffBaseNode.offset.setTargetAtTime(filterCutoff, now, 0.015);
     filterNode.Q.value = filterRes;
     lfos.forEach((lfo) => {
       if (lfo.target === "filter" && lfo.gainNode) {
@@ -1284,7 +1345,78 @@ function updateKeyFollow() {
 }
 
 // ─── DELAY CONTROLS ──────────────────────────────────────────────────────────
+// Tape varispeed: retiming the loop is ONE smooth exponential ramp scheduled
+// on the audio thread (sample-interpolated — no control-rate stepping). The
+// material already circulating re-pitches with the speed change, exactly like
+// a tape transport catching up. cancelAndHold keeps a mid-glide retarget
+// continuous when the knob is still moving.
+//
+// Catch-up physics is 100% tape speed: delay = head gap / tape speed, and the
+// capstan accelerates the tape at a fixed rate (in/s²). Catch-up time is
+// Δ(tape speed) / acceleration — the same musical ratio needs a 4× bigger
+// speed change at 30 IPS than on cassette, so it takes 4× longer. The delay
+// curve is d(t) = L / v(t) with v ramping linearly: the exact reciprocal
+// path a varispeeding transport traces.
+const TAPE_SPEEDS = {
+  studio30: 30,
+  studio15: 15,
+  studio75: 7.5,
+  studio375: 3.75,
+  cassette: 1.875, // 1⅞ IPS
+  micro: 0.9375, // 15/16 IPS
+};
+const TAPE_ACCEL = 12; // capstan acceleration, in/s²
+const TAPE_HEADGAP_S = 0.5; // head gap sized so nominal speed = 0.5s delay
+let tapeIps = TAPE_SPEEDS.studio75;
+let tapeGlide = null; // in-flight glide {v0, v1, L, start, T, dEnd}
+
+function updateTapeSpeed() {
+  const v = document.getElementById("tapeSpeedSelect").value;
+  tapeIps = TAPE_SPEEDS[v] || TAPE_SPEEDS.studio75;
+  const label = { 1.875: "1⅞", 0.9375: "15/16" }[tapeIps] || tapeIps;
+  document.getElementById("tapeSpeedVal").textContent = label + " IPS";
+}
+
+// analytic position of the current glide (avoids stale .value reads)
+function tapeGlideValueAt(now) {
+  if (!tapeGlide) return delayL ? delayL.delayTime.value : 0.25;
+  const g = tapeGlide;
+  if (now >= g.start + g.T) return g.dEnd;
+  if (now <= g.start) return g.L / g.v0;
+  const f = (now - g.start) / g.T;
+  return g.L / (g.v0 + (g.v1 - g.v0) * f);
+}
+
+function tapeGlideDelayTime(startDelayS) {
+  if (!delayL || !audioCtx) return;
+  const now = audioCtx.currentTime;
+  const dTarget = Math.min(4, Math.max(0.005, (60 / bpmTarget) * delaySubdiv));
+  const dNow = tapeGlideValueAt(now);
+  if (Math.abs(dTarget - dNow) < 0.0005) return;
+  const L = tapeIps * TAPE_HEADGAP_S; // head gap, inches
+  const v0 = L / dNow;
+  const v1 = L / dTarget;
+  let T = Math.min(10, Math.max(0.02, Math.abs(v1 - v0) / TAPE_ACCEL));
+  // the tape can't stop or reverse through the head: cap the delay-change
+  // rate so the read never overruns the write (|dd/dt| ≤ 0.85)
+  T = Math.max(T, Math.abs(dTarget - dNow) / 0.85);
+  const start = now + startDelayS;
+  // 0.5ms curve resolution — the pitch trajectory itself stays continuous
+  const N = Math.min(48000, Math.max(16, Math.ceil(T * 2000)));
+  const curve = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    curve[i] = L / (v0 + ((v1 - v0) * i) / (N - 1));
+  }
+  [delayL, delayR].forEach((d) => {
+    d.delayTime.cancelAndHoldAtTime(now);
+    d.delayTime.setValueAtTime(dNow, now);
+    d.delayTime.setValueCurveAtTime(curve, start, T);
+  });
+  tapeGlide = { v0, v1, L, start, T, dEnd: dTarget };
+}
+
 function updateDelay() {
+  const prevSubdiv = delaySubdiv;
   delaySubdiv = parseFloat(document.getElementById("delayTimeSelect").value);
   const fbV = parseInt(document.getElementById("delayFbSlider").value);
   const wetV = parseInt(document.getElementById("delayWetSlider").value);
@@ -1295,12 +1427,8 @@ function updateDelay() {
   delaySpread = sprV / 100;
   // Log scale hi-cut: 200Hz → 20kHz
   delayHiCutFreq = 200 * Math.pow(100, hcV / 100);
-  const dTime = (60 / bpm) * delaySubdiv;
-  // Use setTargetAtTime to smoothly transition delay time and avoid pitch-sweep clicks
-  if (delayL)
-    delayL.delayTime.setTargetAtTime(dTime, audioCtx.currentTime, 0.008);
-  if (delayR)
-    delayR.delayTime.setTargetAtTime(dTime, audioCtx.currentTime, 0.008);
+  // A new subdivision retimes the loop the tape way: glide the speed
+  if (delaySubdiv !== prevSubdiv) tapeGlideDelayTime(0);
   if (delayFbGainLR) delayFbGainLR.gain.value = delayFeedback;
   if (delayFbGainRL) delayFbGainRL.gain.value = delayFeedback;
   if (delayPanL) delayPanL.pan.value = -delaySpread;
@@ -2109,6 +2237,7 @@ function getPresetState() {
     "lfo4WaveSelect",
     "lfo4TargetSelect",
     "delayTimeSelect",
+    "tapeSpeedSelect",
   ];
   const state = {
     sliders: {},
@@ -2398,6 +2527,7 @@ function morphToPreset(id) {
     "lfo4WaveSelect",
     "lfo4TargetSelect",
     "delayTimeSelect",
+    "tapeSpeedSelect",
   ];
   SELECT_IDS.forEach((sid) => {
     const el = document.getElementById(sid);
@@ -2532,6 +2662,7 @@ lfos.forEach((_, i) => updateLFO(i));
 updateFilterADSR();
 updateKeyFollow();
 updateDelay();
+updateTapeSpeed();
 updateReverb();
 lfos.forEach((_, i) => drawLFOCanvas(i));
 drawPPCanvas();
